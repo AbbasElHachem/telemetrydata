@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[93]:
-# TODO FIX ME
-
-# -*- coding: utf-8 -*-
 """
 Created on 15-03-2019
 
@@ -37,10 +33,10 @@ style.use('fivethirtyeight')
 #==============================================================================
 # # def what to plot
 #==============================================================================
-plot_vel_hpe_rmse_original_data = False
+plot_vel_hpe_rmse_original_data = True
 plot_vel_hpe_rmse_filtered_data = False
 
-plot_original_histograms_and_marginals_vel_hpe_rmse_ = True
+plot_original_histograms_and_marginals_vel_hpe_rmse_ = False
 plot_filtered_histograms_and_marginals_vel_hpe_rmse_ = False
 
 
@@ -110,7 +106,7 @@ def savefig(fig_name, out_dir):
 #==============================================================================
 
 
-def plot_img(img_loc, ax, img_transparancy=0.25):
+def plot_img(img_loc, ax, img_transparancy=0.5):
     ''' fct to plot orginal river image
     img_loc :path to the Ortho image
     ax: matplotib suplot for plotting the image
@@ -220,7 +216,7 @@ def plot_Var_values(img_loc, orig_station_file, fish_file,
 
     print(df_fish)
     norm = mcolors.BoundaryNorm(boundaries=var_bounds, ncolors=256)
-    fig, ax = plt.subplots(1, 1, figsize=(16, 12), dpi=200)
+    fig, ax = plt.subplots(1, 1, figsize=(16, 12), dpi=100)
 
     plot_img(img_loc, ax)
     pcm = ax.scatter(df_fish['Longitude'].values,

@@ -13,7 +13,7 @@ import timeit
 
 from shapely.geometry import shape, Point
 
-import pyproj
+
 import shapefile
 import pandas as pd
 
@@ -98,19 +98,6 @@ def readDf(df_file):
         df.index = [ix.replace('.:', '.') for ix in df.index]
         df.index = pd.to_datetime(df.index, format=time_fmt)
     return df
-# =============================================================================
-#
-# =============================================================================
-
-
-def convert_coords_fr_wgs84_to_utm32_(epgs_initial_str, epsg_final_str,
-                                      first_coord, second_coord):
-    '''fct to convert points from wgs 84 to utm32'''
-    initial_epsg = pyproj.Proj(epgs_initial_str)
-    final_epsg = pyproj.Proj(epsg_final_str)
-    x, y = pyproj.transform(initial_epsg, final_epsg,
-                            first_coord, second_coord)
-    return x, y
 # =============================================================================
 #
 # =============================================================================
@@ -205,10 +192,6 @@ if __name__ == '__main__':
     shp_path = (r'E:\Work_with_Matthias_Schneider'
                 r'\QGis_abbas\wanted_river_section.shp')
     assert os.path.exists(shp_path)
-
-    # def epsg wgs84 and utm32
-    wgs82 = "+init=EPSG:4326"
-    utm32 = "+init=EPSG:32632"
 
     # start filtering the data, keep only in river
     in_orig_stn_df = read_OrigStn_DF(orig_station_file)

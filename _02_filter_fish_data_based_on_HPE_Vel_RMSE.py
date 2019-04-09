@@ -18,6 +18,20 @@ import numpy as np
 import pandas as pd
 
 
+# def epsg wgs84 and utm32
+wgs82 = "+init=EPSG:4326"
+utm32 = "+init=EPSG:32632"
+
+# def HPE, RMSE, Velocity thresholds for filtering
+hpe_thr = 1.35
+rmse_thr = 0.35
+vel_thr = 1.5
+
+#==============================================================================
+#
+#==============================================================================
+
+
 def readDf(df_file):
     ''' read on df and adjust index and selct columns'''
     df = pd.read_csv(df_file, sep=',', index_col=0, infer_datetime_format=True,
@@ -81,7 +95,7 @@ def calculate_fish_velocity(df_fish, wgs82, utm32):
         calculate_distance_2_points(delta_x_y['delta_x'],
                                     delta_x_y['delta_y']), 2)
 
-    delta_x_y['Fish_Swimming_Velocity_in_m_per_s'] = np.round(
+    delta_x_y['Fish_swim_velocity_in_m_per_s'] = np.round(
         (delta_x_y['Traveled_Distance_in_m'].values /
          delta_x_y['Time_Difference_in_s'].values), 2)
 
@@ -199,15 +213,6 @@ if __name__ == '__main__':
                     r'\out_plots_abbas\Filtered_df_HPE_RMSE_VEL')
     if not os.path.exists(out_save_dir):
         os.mkdir(out_save_dir)
-
-    # def epsg wgs84 and utm32
-    wgs82 = "+init=EPSG:4326"
-    utm32 = "+init=EPSG:32632"
-
-    # def HPE, RMSE, Velocity thresholds for filtering
-    hpe_thr = 1.35
-    rmse_thr = 0.35
-    vel_thr = 1.5
 
     in_fish_files_dict = getFiles(
         main_data_dir, '.csv', dir_kmz_for_fish_names)

@@ -97,37 +97,6 @@ def getFiles(data_dir_, file_ext_str, dir_kmz_for_fish_names):
     return dict_files_per_fish
 
 
-#%%
-
-
-def make_colormap(seq):
-    """Return a LinearSegmentedColormap
-    seq: a sequence of floats and RGB-tuples. The floats should be increasing
-    and in the interval (0,1).
-    """
-    seq = [(None,) * 3, 0.0] + list(seq) + [1.0, (None,) * 3]
-    cdict = {'red': [], 'green': [], 'blue': []}
-    for i, item in enumerate(seq):
-        if isinstance(item, float):
-            r1, g1, b1 = seq[i - 1]
-            r2, g2, b2 = seq[i + 1]
-            cdict['red'].append([item, r1, r2])
-            cdict['green'].append([item, g1, g2])
-            cdict['blue'].append([item, b1, b2])
-
-    return mcolors.LinearSegmentedColormap('CustomMap', cdict)
-
-
-# make customized colormap
-c = mcolors.ColorConverter().to_rgb
-rvb = make_colormap([c('blue'), c('lightblue'), c('c'), 0.33,
-                     c('green'), c('yellow'), c('gold'), 0.66,
-                     c('orange'), c('red')])
-
-
-#%%
-
-
 def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                                     fishshp, rivershp, out_save_dir):
 

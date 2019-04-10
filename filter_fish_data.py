@@ -577,7 +577,7 @@ def plot_histogram(df_fish, fish_nbr, variable_to_plt,
     ax.bar(center, hist, width=0.25, alpha=0.5,  # align='center',
            linewidth=0.51, color='blue', edgecolor='darkblue',
            label='%s Distribtuion' % variable_to_plt)
-    ax.set_yticks(np.arange(0, hist.max(), vals.shape[0]/20))
+    ax.set_yticks(np.arange(0, hist.max(), vals.shape[0] / 20))
     ax.set_ylim([0, hist.max()])
     ax.set_title('Fish %s Distribution of %s with upper threshold of %s'
                  % (fish_nbr, variable_to_plt, str(var_thr)),
@@ -966,7 +966,7 @@ def save_fish_per_period(df_fish, fish_nbr,
         if df_period.values.shape[0] > 0:
             print(df_period)
             df_period.to_csv(os.path.join(out_plots_dir,
-                                          r'fltrd_data_%s_HPE_RMSE_Vel_%s.csv'
+                                          r'filtered_data_%s_HPE_RMSE_Vel_%s.csv'
                                           % (fish_nbr, per_name)))
     return
 # =============================================================================
@@ -1358,7 +1358,8 @@ def plot_difference_in_angle(in_df_fish_flow, fish_type_nbr, flow_cat,
                 bbox_inches='tight', pad_inches=.2)
     plt.close()
     plt.clf()
-    return in_df_fish_flow
+    del in_df_fish_flow
+    return
 
 # =============================================================================
 #
@@ -1375,7 +1376,8 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
     https://stackoverflow.com/questions/53028514/
     calculate-distance-from-one-point-to-all-others
     '''
-    fish_flow_df = pd.read_csv(fish_flow_file, sep=',', index_col=0)
+    fish_flow_df = pd.read_csv(fish_flow_file, sep=',', index_col=0,
+                               parse_dates=True, engine='c')
     flow_val = flow_cat[-2:]
     x_grid = fish_flow_df.X_of_grid_node.values
     y_grid = fish_flow_df.Y_of_grid_node.values
@@ -1412,32 +1414,61 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
                       fish_flow_df.iloc[vel_point_id, :].y_fish)
 
         angle_fish_max_depth_grd = np.math.degrees(
-                np.math.atan2((y_d - y0), (x_d - x0)))
+            np.math.atan2((y_d - y0), (x_d - x0)))
         angle_fish_max_vel_grd = np.math.degrees(
-                np.math.atan2((y_v - y0), (x_v - x0)))
+            np.math.atan2((y_v - y0), (x_v - x0)))
 
-        fish_flow_df.rename(
-                columns={'fish_angle': 'fish_swim_direction_compared_to_x_axis',
-                         'flow_angle': 'flow_direction_compared_to_x_axis',
-                         'angle_diff': 'difference_between_swim_flow_direction'},
-                inplace=True)
         fish_flow_df.loc[ix,
-                         'angle_swim_direction_and_max_%s_gradient_difference'
+                         'Angle_swim_direction_and_max_%s_gradient_difference'
                          % depth_var] = angle_fish_max_depth_grd
         fish_flow_df.loc[ix,
-                         'angle_swim_direction_and_max_%s_gradient_difference'
+                         'Angle_swim_direction_and_max_%s_gradient_difference'
                          % flow_var] = angle_fish_max_vel_grd
 
+    fish_flow_df.rename(
+        columns={'Velocity': 'Fish_swim_velocity_m_per_s',
+                 'x_fish': 'Fish_x_coord',
+                 'y_fish': 'Fish_y_coord',
+                 'index_of_grid_node': 'Index_of_grid_node',
+                 'fish_angle': 'Fish_swim_direction_compared_to_x_axis',
+                 'flow_angle': 'Flow_direction_compared_to_x_axis',
+                 'angle_diff': 'Angle_between_swim_and_flow_direction'},
+        inplace=True)
+    deltax = fish_flow_df.Fish_x_coord.diff()
+    deltay = fish_flow_df.Fish_x_coord.diff()
+    fish_flow_df['Time'] = fish_flow_df.index
+    fish_flow_df['Time_difference_in_s'] = np.round(
+        fish_flow_df.Time.diff() / pd.Timedelta('1s'), 1)
+    fish_flow_df['Traveled_distance_in_m'] = calculate_distance_2_points(deltax,
+                                                                         deltay)
+    fish_flow_df.drop('Time', axis=1, inplace=True)
+
+    cols_new = ['Longitude', 'Latitude', 'Fish_x_coord',
+                'Fish_y_coord', 'Time_difference_in_s',
+                'Traveled_distance_in_m',
+                'Fish_swim_velocity_m_per_s', 'HPE', 'RMSE',
+                'Flow_Cat', 'Index_of_grid_node',
+                'X_of_grid_node', 'Y_of_grid_node', 'Z_of_grid_node',
+                'depth_%s' % flow_val, 'velX_%s' % flow_val,
+                'velY_%s' % flow_val, 'velM_%s' % flow_val,
+                'Fish_swim_direction_compared_to_x_axis',
+                'Flow_direction_compared_to_x_axis',
+                'Angle_between_swim_and_flow_direction',
+                'Angle_swim_direction_and_max_%s_gradient_difference'
+                % depth_var,
+                'Angle_swim_direction_and_max_%s_gradient_difference'
+                % flow_var]
+    fish_flow_df = fish_flow_df[cols_new]
     fish_flow_df.to_csv(
-            os.path.join(out_plots_dir,
-                         r'fish_%s_with_flow_data_%s_angles'
-                         r'_and_max_gradients.csv'
-                         % (fish_nbr, flow_cat)))
+        os.path.join(out_plots_dir,
+                     r'fish_%s_with_flow_data_%s_angles'
+                     r'_and_max_gradients.csv'
+                     % (fish_nbr, flow_cat)))  # , compression='gzip')
+
     return fish_flow_df
 # =============================================================================
 #
 # =============================================================================
-
 
 
 if __name__ == '__main__':
@@ -1445,7 +1476,8 @@ if __name__ == '__main__':
     in_orig_stn_df = read_OrigStn_DF(orig_station_file)
 
 #    in_fish_files_dict = getFiles(main_data_dir, '.csv')  # fish_file[-9:-4]
-#    in_fish_files_dict = getFiles(points_in_river, '.csv')  # fish_file[-25:-20]
+# in_fish_files_dict = getFiles(points_in_river, '.csv')  #
+# fish_file[-25:-20]
 
 #    in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\Filtered_data', '.csv')
     in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
@@ -1457,56 +1489,44 @@ if __name__ == '__main__':
     ratio_data = []
 
 #    plot_flow_fish_values(img_loc, 'Flow_Cat', [20, 30, 40], 'all')
-#    for nbr in ['46858', '46859', '46860', '46861', '46841', '46842', '46843']:
+# for nbr in ['46858', '46859', '46860', '46861', '46841', '46842',
+# '46843']:
     for fish_type in in_fish_files_dict.keys():
+        if fish_type == '2_barbel':  # fish_type == '3_chub' or
+            for fish_file in in_fish_files_dict[fish_type]:
+                print(fish_file)
+                # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
+                fish_nbr = fish_type + '_' + fish_file[-47:-42]
+                # raise Exception
+                # 'not_considered'  # fish_file[-11:-5]
+                flow_cat = fish_file[-11:-5]
 
-        for fish_file in in_fish_files_dict[fish_type]:
-#                if  nbr in fish_file:
-            print(fish_file)
-#            in_df = readDf(fish_file)
-#            plot_histogram(in_df, fish_type + '_' + fish_file[-9:-4], 'HPE',
-#                           var_thr=30)
-#            plot_histogram(in_df, fish_type + '_' + fish_file[-9:-4], 'RMSE',
-#                           var_thr=2.5)
-#            delta_x_y = calculate_fish_velocity(in_df)
-#            plot_histogram(delta_x_y, fish_type + '_' + fish_file[-9:-4],
-#                           'Velocity',
-#                           var_thr=5)
-            fish_nbr = fish_type + fish_file[-47:-42] # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
-            # raise Exception
-            flow_cat =  fish_file[-11:-5] # 'not_considered'  # fish_file[-11:-5]
-#            in_df = pd.read_csv(fish_file, index_col=0, parse_dates=True)
-#            plot_heatmapt_fish_loc(in_df, fish_nbr, plt_img=True)
-#            raise Exception
-    #            print(fish_nbr)
+    #                 try:
+                #                 pass
 
-            try:
-                pass
-
-
-#                d = calc_max_gradient_direct(fish_file, flow_cat, fish_nbr)
-#                plot_difference_in_angle(d, fish_nbr, flow_cat,
-#                                 'angle_swim_direction_and_max_depth_%s_gradient_difference'
-#                                 % str(flow_cat[-2:]))
-#                plot_difference_in_angle(d, fish_nbr, flow_cat,
-#                                 'angle_swim_direction_and_max_velM_%s_gradient_difference'
-#                                 % str(flow_cat[-2:]))
-#                raise Exception
-    #                        dd = compare_fish_and_flow_direction(fish_file,
-    #                                                             fish_nbr,
-    #                                                             flow_cat,
-    #                                                             True)
-    #                        vel_vls, angle_vls, grdx, grdy = aggregate_values_per_grid_cell(
-    #                            delta_x_y, 'Velocity', 'fish_angle')
-    #                        plot_agg_grid_vls(grdx, grdy, angle_vls, fish_nbr, 'fish_angle')
-    ##                        plot_agg_grid_vls(grdx, grdy, vel_vls, fish_nbr, 'Velocity')
-    #                find_diff_fish_and_flow_direction(fish_file, fish_nbr, flow_cat)
-
-            except Exception as msg:
-                print(msg)
-                continue
-#            break
-#        break
+                d = calc_max_gradient_direct(fish_file, flow_cat, fish_nbr)
+                plot_difference_in_angle(d, fish_nbr, flow_cat,
+                                         'Angle_swim_direction_and_max_depth_%s_gradient_difference'
+                                         % str(flow_cat[-2:]))
+                plot_difference_in_angle(d, fish_nbr, flow_cat,
+                                         'Angle_swim_direction_and_max_velM_%s_gradient_difference'
+                                         % str(flow_cat[-2:]))
+    #                raise Exception
+        #                        dd = compare_fish_and_flow_direction(fish_file,
+        #                                                             fish_nbr,
+        #                                                             flow_cat,
+        #                                                             True)
+        #                        vel_vls, angle_vls, grdx, grdy = aggregate_values_per_grid_cell(
+        #                            delta_x_y, 'Velocity', 'fish_angle')
+        #                        plot_agg_grid_vls(grdx, grdy, angle_vls, fish_nbr, 'fish_angle')
+        ##                        plot_agg_grid_vls(grdx, grdy, vel_vls, fish_nbr, 'Velocity')
+        #                find_diff_fish_and_flow_direction(fish_file, fish_nbr, flow_cat)
+#
+#                 except Exception as msg:
+#                     print(msg)
+#                     continue
+#                 break
+#             break
 
 #            transform_variables_to_uniform_marginals(in_f,
 #                                                   'Velocity', 'velM_60')
@@ -1519,7 +1539,6 @@ if __name__ == '__main__':
 #                plot_heatmapt_fish_loc(delta_x_y, fish_nbr,
 #                                        'using_HPE_RMSE_Vel_filters',
 #                                        plt_img=True)
-
 
     STOP = timeit.default_timer()  # Ending time
     print(('\n\a\a\a Done with everything on %s. Total run time was'

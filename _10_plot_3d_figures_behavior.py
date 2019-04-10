@@ -122,9 +122,8 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     dates_formatted = [pd.to_datetime(d) for d in z_vals]
     z_vals_ix = np.arange(0, len(z_vals), 1)
 
-    bounds = {0: [0.0, 4], 1: [4, 8], 2: [8, 12],
-              3: [12, 16], 4: [16, 20], 5: [20, 24]}
-    clrs = ['navy', 'blue', 'g', 'c', 'gold', 'darkorange', 'red']
+    bounds = {0: [0, 4], 1: [4, 10], 2: [10, 16], 3: [16, 22], 4: [22, 0]}
+    clrs = ['blue', 'g',  'gold', 'red', 'blue']
     cmap = mcolors.ListedColormap(clrs)
     for ix, val in zip(in_df.index, in_df.index.hour):
         for k, v in bounds.items():
@@ -132,10 +131,10 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                 in_df.loc[ix, 'colors'] = clrs[k]
         if val < bounds[0][0]:
             in_df.loc[ix, 'colors'] = clrs[0]
-        if val > bounds[5][1]:
-            in_df.loc[ix, 'colors'] = clrs[5]
+        if val > bounds[4][1]:
+            in_df.loc[ix, 'colors'] = clrs[4]
 
-    ticks = [0, 4, 8, 12, 16, 20, 24, 24.01]
+    ticks = [0, 4, 10, 16, 22, 24]
 
     ax.scatter3D(x_vals, y_vals, zs=z_vals_ix, zdir='z',
                  c=in_df.colors, alpha=0.65,
@@ -188,8 +187,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     ax.set_aspect('auto')
     cb.ax.set_xticklabels([str(i) for i in ticks])
 
-    for angle in range(0, 360):
-        ax.view_init(-25, angle)
+    ax.view_init(25, 285)
 
     ax.legend(loc=0)
     cb.draw_all()
@@ -297,8 +295,8 @@ def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
     cb.set_label('Flow_velocity_m_per_s')
 #     ax.set_aspect('auto')
 
-    for angle in range(0, 360):
-        ax.view_init(-2, angle)
+#     for angle in range(0, 360):
+    ax.view_init(25, 285)
 
     ax.legend(loc='upper right', frameon=True)
     cb.draw_all()
@@ -352,9 +350,9 @@ if __name__ == '__main__':
             # 'not_considered'  # fish_file[-11:-5]
 
             try:
-                #                 plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
-                #                                                 fish_shp_path, river_shp_path,
-                #                                                 out_plots_dir)
+                plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
+                                                fish_shp_path, river_shp_path,
+                                                out_plots_dir)
 
                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
                                            fish_shp_path, river_shp_path,

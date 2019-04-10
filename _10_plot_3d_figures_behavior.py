@@ -189,7 +189,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     cb.ax.set_xticklabels([str(i) for i in ticks])
 
     for angle in range(0, 360):
-        ax.view_init(25, angle)
+        ax.view_init(-25, angle)
 
     ax.legend(loc=0)
     cb.draw_all()
@@ -285,7 +285,7 @@ def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
 
     ax.set_title('Fish_%s_Flow_%s_colors_refer_to_%s'
                  % (fish_nbr, flow_cat,
-                    'Flow_velocity_m_per_s'))
+                    'Flow_velocity_m_per_s'), y=0.98)
 #     ax.set_xlim(10.223, 10.226), ax.set_ylim(47.818, 47.820)
     ax.set_xlim(min(lon), max(lon)), ax.set_ylim(min(lat), max(lat))
     norm = mcolors.BoundaryNorm(ticks, cmap.N)
@@ -298,7 +298,7 @@ def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
 #     ax.set_aspect('auto')
 
     for angle in range(0, 360):
-        ax.view_init(25, angle)
+        ax.view_init(-2, angle)
 
     ax.legend(loc='upper right', frameon=True)
     cb.draw_all()
@@ -352,9 +352,9 @@ if __name__ == '__main__':
             # 'not_considered'  # fish_file[-11:-5]
 
             try:
-                plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
-                                                fish_shp_path, river_shp_path,
-                                                out_plots_dir)
+                #                 plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
+                #                                                 fish_shp_path, river_shp_path,
+                #                                                 out_plots_dir)
 
                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
                                            fish_shp_path, river_shp_path,

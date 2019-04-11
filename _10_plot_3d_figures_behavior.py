@@ -131,7 +131,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                 in_df.loc[ix, 'colors'] = clrs[k]
         if val < bounds[0][0]:
             in_df.loc[ix, 'colors'] = clrs[0]
-        if val > bounds[4][1]:
+        if val > bounds[4][0]:
             in_df.loc[ix, 'colors'] = clrs[4]
 
     ticks = [0, 4, 10, 16, 22, 24]
@@ -163,7 +163,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                   label='Fish Pass Area')
 
     ax.scatter3D(10.2247927, 47.8186509, zs=z_vals_ix, zdir='z',
-                 c='darkred', alpha=0.5, marker='D', s=40,
+                 c='maroon', alpha=0.5, marker='D', s=40,
                  label='Fish pass entrance')
     ax.zaxis.set_ticks(
         z_vals_ix[::int(np.round(z_vals_ix.shape[0] / 15))])
@@ -354,9 +354,9 @@ if __name__ == '__main__':
                                                 fish_shp_path, river_shp_path,
                                                 out_plots_dir)
 
-                plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
-                                           fish_shp_path, river_shp_path,
-                                           out_plots_dir)
+#                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
+#                                            fish_shp_path, river_shp_path,
+#                                            out_plots_dir)
 
             except Exception as msg:
                 print(msg)

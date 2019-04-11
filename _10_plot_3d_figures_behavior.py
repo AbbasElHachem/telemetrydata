@@ -187,7 +187,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     ax.set_aspect('auto')
     cb.ax.set_xticklabels([str(i) for i in ticks])
 
-    ax.view_init(25, 285)
+    ax.view_init(25, 275)
 
     ax.legend(loc=0)
     cb.draw_all()
@@ -296,7 +296,7 @@ def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
 #     ax.set_aspect('auto')
 
 #     for angle in range(0, 360):
-    ax.view_init(25, 285)
+    ax.view_init(25, 275)
 
     ax.legend(loc='upper right', frameon=True)
     cb.draw_all()

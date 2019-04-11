@@ -303,7 +303,7 @@ def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
     cb.set_alpha(1)
 #     plt.tight_layout()
     plt.savefig(os.path.join(out_save_dir,
-                             '3d_%s_%s_%s_1.png'
+                             '3d_%s_%s_%s_.png'
                              % (fish_nbr, flow_cat,
                                 'Flow_velocity_m_per_s')))
     plt.close()
@@ -354,15 +354,15 @@ if __name__ == '__main__':
                                                 fish_shp_path, river_shp_path,
                                                 out_plots_dir)
 
-#                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
-#                                            fish_shp_path, river_shp_path,
-#                                            out_plots_dir)
+                plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
+                                           fish_shp_path, river_shp_path,
+                                           out_plots_dir)
 
             except Exception as msg:
                 print(msg)
                 continue
-            break
-        break
+#             break
+#         break
     END = timeit.default_timer()
 
     print('Program ended at: ', time.asctime(),

@@ -1,6 +1,7 @@
 eclipse.preferences.version=1
 encoding/_01_filter_fish_points_keep_only_in_river.py=utf-8
 encoding/_02_filter_fish_data_based_on_HPE_Vel_RMSE.py=utf-8
+encoding/_03_plot_margingals_histograms_velocity_hpe_rmse.py=utf-8
 encoding/_04_plot_heatmaps.py=utf-8
 encoding/_05_plot_time_difference_between_measurements.py=utf-8
 encoding/_06_save__fish_data_per_period.py=utf-8

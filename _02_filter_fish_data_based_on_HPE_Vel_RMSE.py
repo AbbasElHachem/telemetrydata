@@ -10,8 +10,8 @@ Institut fuer Wasser- und Umweltsystemmodellierung - IWS
 from __future__ import division
 
 from _00_define_main_directories import (dir_kmz_for_fish_names,
-     main_data_dir,
-      out_data_dir)
+                                         main_data_dir,
+                                         out_data_dir)
 
 from _01_filter_fish_points_keep_only_in_river import getFiles
 import os

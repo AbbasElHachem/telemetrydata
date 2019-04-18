@@ -17,8 +17,11 @@ from matplotlib.ticker import LinearLocator
 from matplotlib import rc
 from matplotlib import rcParams
 
-from _00_define_main_directories import (dir_kmz_for_fish_names, out_data_dir,
-    fish_shp_path, river_shp_path)
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+                                         out_data_dir,
+                                         fish_shp_path,
+                                         river_shp_path)
+
 from _01_filter_fish_points_keep_only_in_river import getFiles
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import convert_coords_fr_wgs84_to_utm32_
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import wgs82, utm32
@@ -294,8 +297,8 @@ if __name__ == '__main__':
             except Exception as msg:
                 print(msg)
                 continue
-#             break
-#         break
+            break
+        break
     END = timeit.default_timer()
 
     print('Program ended at: ', time.asctime(),

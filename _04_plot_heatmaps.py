@@ -11,9 +11,16 @@ __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
 # ===================================================
 
-from pathlib import Path
-
 from matplotlib.ticker import FormatStrFormatter
+
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+                                         out_data_dir,
+                                         img_loc)
+from _01_filter_fish_points_keep_only_in_river import getFiles
+from _02_filter_fish_data_based_on_HPE_Vel_RMSE import filtered_out_data
+from _03_plot_margingals_histograms_velocity_hpe_rmse import savefig, plot_img
+
+
 import matplotlib as mpl
 import os
 import timeit
@@ -23,16 +30,6 @@ import matplotlib.colors as mcolors
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
-from _00_define_main_directories import (dir_kmz_for_fish_names,
-                                         out_data_dir,
-                                         img_loc)
-from _01_filter_fish_points_keep_only_in_river import getFiles
-from _02_filter_fish_data_based_on_HPE_Vel_RMSE import filtered_out_data
-from _03_plot_margingals_histograms_velocity_hpe_rmse import savefig, plot_img
-
-main_dir = Path(os.getcwd())
-os.chdir(main_dir)
 
 #==============================================================================
 # # def all directories and all required parameters

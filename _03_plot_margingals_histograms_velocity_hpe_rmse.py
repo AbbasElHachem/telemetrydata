@@ -16,7 +16,7 @@ from _00_define_main_directories import (dir_kmz_for_fish_names,
 from _01_filter_fish_points_keep_only_in_river import (getFiles)
 
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import (calculate_fish_velocity,
-    filtered_out_data)
+                                                        filtered_out_data)
 
 from PIL import Image
 from matplotlib import style

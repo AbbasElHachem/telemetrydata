@@ -7,8 +7,10 @@ Institut fuer Wasser- und Umweltsystemmodellierung - IWS
 """
 from __future__ import division
 
-from _00_define_main_directories import (dir_kmz_for_fish_names, main_data_dir,
-    orig_station_file, out_data_dir, shp_path)
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+                                         main_data_dir,
+                                         orig_station_file,
+                                         out_data_dir, shp_path)
 import os
 import time
 import timeit

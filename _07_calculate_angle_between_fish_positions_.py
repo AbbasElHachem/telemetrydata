@@ -20,8 +20,9 @@ __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
 # ===================================================
 
-from pathlib import Path
-
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+                                         out_data_dir)
+from _02_filter_fish_data_based_on_HPE_Vel_RMSE import filtered_out_data
 from _01_filter_fish_points_keep_only_in_river import getFiles
 
 import os
@@ -31,27 +32,13 @@ import time
 import numpy as np
 import pandas as pd
 
-main_dir = Path(os.getcwd())
-os.chdir(main_dir)
-
 #==============================================================================
 # # def all directories and all required parameters
 #==============================================================================
-dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
-                          r'\2018_11_26_tracks_fish_vemco\kmz')
-assert os.path.exists(dir_kmz_for_fish_names)
 
-
-filtered_data_dir = (r'C:\Users\hachem\Desktop'
-                     r'\Work_with_Matthias_Schneider'
-                     r'\out_plots_abbas\Filtered_df_HPE_RMSE_VEL')
-assert os.path.exists(filtered_data_dir)
-
-out_save_dir = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-                r'\out_plots_abbas\'Df_filtered_with_angles')
+out_save_dir = os.path.join(out_data_dir, r'Df_filtered_with_angles')
 if not os.path.exists(out_save_dir):
     os.mkdir(out_save_dir)
-
 
 #==============================================================================
 #
@@ -80,7 +67,7 @@ if __name__ == '__main__':
     print('**** Started on %s ****\n' % time.asctime())
     START = timeit.default_timer()  # to get the runtime of the program
 
-    in_filtered_fish_files_dict = getFiles(filtered_data_dir, '.csv',
+    in_filtered_fish_files_dict = getFiles(filtered_out_data, '.csv',
                                            dir_kmz_for_fish_names)
 
     for fish_type in in_filtered_fish_files_dict.keys():

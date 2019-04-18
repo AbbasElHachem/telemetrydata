@@ -22,7 +22,7 @@ __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
 # ===================================================
 
-from pathlib import Path
+from _00_define_main_directories import asci_grd_file_1m_
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import (wgs82, utm32,
                                                         calculate_fish_velocity,
                                                         convert_coords_fr_wgs84_to_utm32_)
@@ -32,17 +32,6 @@ import timeit
 import time
 import numpy as np
 import pandas as pd
-
-main_dir = Path(os.getcwd())
-os.chdir(main_dir)
-#==============================================================================
-#
-#==============================================================================
-
-asci_grd_file_1m_ = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-                     r'\2019_01_18_GridsFromHydraulicModelForIne'
-                     r'\altusried_1m_copy.csv')
-assert os.path.exists(asci_grd_file_1m_)
 
 #==============================================================================
 #

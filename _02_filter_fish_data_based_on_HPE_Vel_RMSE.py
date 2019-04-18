@@ -9,14 +9,16 @@ Institut fuer Wasser- und Umweltsystemmodellierung - IWS
 """
 from __future__ import division
 
-from _01_filter_fish_points_keep_only_in_river import (getFiles)
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+     main_data_dir,
+      out_data_dir)
 
+from _01_filter_fish_points_keep_only_in_river import getFiles
 import os
 
 import pyproj
 import numpy as np
 import pandas as pd
-
 
 # def epsg wgs84 and utm32
 wgs82 = "+init=EPSG:4326"
@@ -31,7 +33,15 @@ vel_thr = 1.5
 #
 #==============================================================================
 
+filtered_out_data = os.path.join(out_data_dir, r'Filtered_df_HPE_RMSE_VEL')
 
+if not os.path.exists(filtered_out_data):
+    os.mkdir(filtered_out_data)
+
+
+#==============================================================================
+#
+#==============================================================================
 def readDf(df_file):
     ''' read on df and adjust index and selct columns'''
     df = pd.read_csv(df_file, sep=',', index_col=0, infer_datetime_format=True,
@@ -43,7 +53,6 @@ def readDf(df_file):
         df.index = [ix.replace('.:', '.') for ix in df.index]
         df.index = pd.to_datetime(df.index, format=time_fmt)
     return df
-
 
 # In[67]:
 
@@ -57,14 +66,12 @@ def convert_coords_fr_wgs84_to_utm32_(epgs_initial_str, epsg_final_str,
                             first_coord, second_coord)
     return x, y
 
-
 # In[68]:
 
 
 def calculate_distance_2_points(deltax, deltay):
     ''' fct to calculate distance between two arrays of coordinates'''
     return np.sqrt((deltax ** 2) + (deltay ** 2))
-
 
 # In[104]:
 
@@ -106,7 +113,6 @@ def calculate_fish_velocity(df_fish, wgs82, utm32):
         (df_fish['HPE'].values[1:], df_fish['RMSE'].values[1:]), 2)
     return delta_x_y
 
-
 # In[105]:
 
 
@@ -116,7 +122,6 @@ def use_Variable_below_thr_keep_first_point(df_fish, var_name, var_thr):
     df_fish = df_fish[df_fish[var_name] <= var_thr]
     df_fish = df_fish[0 < df_fish[var_name]]
     return df_fish
-
 
 # In[106]:
 
@@ -128,7 +133,6 @@ def use_Variable_below_thr_two_var(df_fish, var1_name, var1_thr,
     df_fish = df_fish[(df_fish[var1_name] <= var1_thr) &
                       (df_fish[var2_name] <= var2_thr)]
     return df_fish
-
 
 # In[107]:
 
@@ -145,7 +149,6 @@ def use_var_blw_thr_keep_second_point(df_fish, var_name, var_thr):
     # in this way we keep the second point and drop first point
     df_fish_red.drop(index=ix, inplace=True)
     return df_fish_red
-
 
 # In[108]:
 
@@ -185,7 +188,6 @@ def drop_vals_blw_thr_keep_pts_based_on_other_var(df_fish,
             ix_keep.append(-99)
     return result, ixb4, ixafter
 
-
 # In[109]:
 
 
@@ -195,24 +197,10 @@ def use_Variable_abv_thr(df_fish, var_name, var_thr):
     df_fish = df_fish[df_fish[var_name] >= var_thr]
     return df_fish
 
-
 # In[ ]:
 
 
 if __name__ == '__main__':
-
-    dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
-                              r'\2018_11_26_tracks_fish_vemco\kmz')
-    assert os.path.exists(dir_kmz_for_fish_names)
-
-    main_data_dir = r'E:\Work_with_Matthias_Schneider\2018_11_26_tracks_fish_vemco\csv'
-    assert os.path.exists(main_data_dir)
-
-    out_save_dir = (r'C:\Users\hachem\Desktop'
-                    r'\Work_with_Matthias_Schneider'
-                    r'\out_plots_abbas\Filtered_df_HPE_RMSE_VEL')
-    if not os.path.exists(out_save_dir):
-        os.mkdir(out_save_dir)
 
     in_fish_files_dict = getFiles(
         main_data_dir, '.csv', dir_kmz_for_fish_names)
@@ -234,13 +222,12 @@ if __name__ == '__main__':
                 delta_x_y = use_Variable_below_thr_keep_first_point(
                     delta_x_y, 'Fish_Swimming_Velocity_in_m_per_s', 1.5)
                 delta_x_y.to_csv(
-                    os.path.join(out_save_dir,
+                    os.path.join(filtered_out_data,
                                  'filtered_data_' + fish_nbr + '_.csv'))
             except Exception as msg:
                 print(msg)
                 continue
             # break
         # break
-
 
 # In[ ]:

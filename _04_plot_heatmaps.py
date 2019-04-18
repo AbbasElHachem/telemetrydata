@@ -19,43 +19,28 @@ import os
 import timeit
 import time
 
-
 import matplotlib.colors as mcolors
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+                                         out_data_dir,
+                                         img_loc)
 from _01_filter_fish_points_keep_only_in_river import getFiles
+from _02_filter_fish_data_based_on_HPE_Vel_RMSE import filtered_out_data
 from _03_plot_margingals_histograms_velocity_hpe_rmse import savefig, plot_img
 
 main_dir = Path(os.getcwd())
 os.chdir(main_dir)
 
-
 #==============================================================================
 # # def all directories and all required parameters
 #==============================================================================
-dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
-                          r'\2018_11_26_tracks_fish_vemco\kmz')
-assert os.path.exists(dir_kmz_for_fish_names)
 
-orig_data_dir = (r'E:\Work_with_Matthias_Schneider'
-                 r'\2018_11_26_tracks_fish_vemco\csv')
-assert os.path.exists(orig_data_dir)
-
-filtered_data_dir = (r'C:\Users\hachem\Desktop'
-                     r'\Work_with_Matthias_Schneider'
-                     r'\out_plots_abbas\Filtered_df_HPE_RMSE_VEL')
-assert os.path.exists(filtered_data_dir)
-
-out_save_dir = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-                r'\out_plots_abbas\Plots_Heatmaps')
+out_save_dir = os.path.join(out_data_dir, r'Plots_Heatmaps')
 if not os.path.exists(out_save_dir):
     os.mkdir(out_save_dir)
-
-img_loc = r'E:\Work_with_Matthias_Schneider\GIS\orthoAll_small.jpg'
-assert os.path.exists(img_loc)
 
 # def some parameters (no need to change)
 # def extent of the river image for plotting
@@ -87,7 +72,6 @@ def make_colormap(seq):
 
     return mcolors.LinearSegmentedColormap('CustomMap', cdict)
 
-
 # =============================================================================
 #
 # =============================================================================
@@ -118,7 +102,6 @@ def do_hist2d_for_heatmap(x, y, bins=1000, weights=None):
     # heatmap = gaussian_filter(heatmap, sigma=600)
     extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
     return heatmap.T, extent
-
 
 # =============================================================================
 #
@@ -207,20 +190,18 @@ def plot_heatmapt_fish_loc(df_fish, fish_type_nbr,
 # =============================================================================
 
 
-
 # make customized colormap
 c = mcolors.ColorConverter().to_rgb
 rvb = make_colormap([c('blue'), c('lightblue'), c('c'), 0.33,
                      c('green'), c('yellow'), c('gold'), 0.66,
                      c('orange'), c('red')])
 
-
 if __name__ == '__main__':
 
     print('**** Started on %s ****\n' % time.asctime())
     START = timeit.default_timer()  # to get the runtime of the program
 
-    in_filtered_fish_files_dict = getFiles(filtered_data_dir, '.csv',
+    in_filtered_fish_files_dict = getFiles(filtered_out_data, '.csv',
                                            dir_kmz_for_fish_names)
 
     for fish_type in in_filtered_fish_files_dict.keys():

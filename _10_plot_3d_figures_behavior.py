@@ -8,8 +8,7 @@ Created on 25.03.2019
 Institut fuer Wasser- und Umweltsystemmodellierung - IWS
 
 """
-#%%
-
+# %%
 
 from __future__ import division
 
@@ -18,6 +17,9 @@ from matplotlib.ticker import LinearLocator
 from matplotlib import rc
 from matplotlib import rcParams
 
+from _00_define_main_directories import (dir_kmz_for_fish_names, out_data_dir,
+    fish_shp_path, river_shp_path)
+from _01_filter_fish_points_keep_only_in_river import getFiles
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import convert_coords_fr_wgs84_to_utm32_
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import wgs82, utm32
 import os
@@ -41,60 +43,7 @@ rc('font', family='serif')
 rc('axes', labelsize=20)
 rcParams['axes.labelpad'] = 35
 
-
-#%%
-
-
-def getFiles(data_dir_, file_ext_str, dir_kmz_for_fish_names):
-    ''' function to get files based on dir and fish name'''
-
-    def list_all_full_path(ext, file_dir):
-        import fnmatch
-        """
-        Purpose: To return full path of files in all dirs of
-        a given folder with a
-        given extension in ascending order.
-        Description of the arguments:
-            ext (string) = Extension of the files to list \
-                e.g. '.txt', '.tif'.
-            file_dir (string) = Full path of the folder in which the files \
-                reside.
-        """
-        new_list = []
-        patt = '*' + ext
-        for root, _, files in os.walk(file_dir):
-            for elm in files:
-                if fnmatch.fnmatch(elm, patt):
-                    full_path = os.path.join(root, elm)
-                    new_list.append(full_path)
-        return(sorted(new_list))
-
-    def get_file_names_per_fish_name(dir_fish_names_files):
-        '''function to get all file names related to each fish '''
-        fish_names = [name for name in os.listdir(dir_fish_names_files)
-                      if os.path.isdir(os.path.join(dir_fish_names_files,
-                                                    name))]
-        dict_fish = {k: [] for k in fish_names}
-        for ix, key_ in enumerate(dict_fish.keys()):
-            files_per_fish = os.listdir(os.path.join(
-                dir_fish_names_files, fish_names[ix]))
-            dict_fish[key_] = files_per_fish
-        return dict_fish
-
-    dict_fish = get_file_names_per_fish_name(dir_kmz_for_fish_names)
-    dict_files_per_fish = {k: [] for k in dict_fish.keys()}
-    dfs_files = []
-    for r, _dir, f in os.walk(data_dir_):
-        for fs in f:
-            if fs.endswith(file_ext_str):
-                dfs_files.append(os.path.join(r, fs))
-    assert len(dfs_files) > 0, 'Wrong dir or extension is given'
-    for k, v in dict_fish.items():
-        for fish_name in v:
-            for f in sorted(dfs_files):
-                if fish_name in f:
-                    dict_files_per_fish[k].append(f)
-    return dict_files_per_fish
+# %%
 
 
 def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
@@ -123,7 +72,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     z_vals_ix = np.arange(0, len(z_vals), 1)
 
     bounds = {0: [0, 4], 1: [4, 10], 2: [10, 16], 3: [16, 22], 4: [22, 0]}
-    clrs = ['blue', 'g',  'gold', 'red', 'blue']
+    clrs = ['blue', 'g', 'gold', 'red', 'blue']
     cmap = mcolors.ListedColormap(clrs)
     for ix, val in zip(in_df.index, in_df.index.hour):
         for k, v in bounds.items():
@@ -199,7 +148,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     plt.close()
     return
 
-#%%
+# %%
 
 
 def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
@@ -309,8 +258,7 @@ def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
     plt.close()
     return
 
-
-#%%
+# %%
 
 
 if __name__ == '__main__':
@@ -318,27 +266,12 @@ if __name__ == '__main__':
     START = timeit.default_timer()
     print('Program started at: ', time.asctime())
 
-    dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
-                              r'\2018_11_26_tracks_fish_vemco\kmz')
-    assert os.path.exists(dir_kmz_for_fish_names)
-
-    fish_shp_path = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-                     r'\QGis_abbas\fish_pass.shp')
-    assert os.path.exists(fish_shp_path)
-
-    river_shp_path = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-                      r'\complere_river_shp\Altusried_Mesh_Boundary.shp')
-    assert os.path.exists(river_shp_path)
-
-    out_plots_dir = (r'C:\Users\hachem\Desktop'
-                     r'\Work_with_Matthias_Schneider\out_plots_abbas')
-    assert os.path.exists(out_plots_dir)
 #    in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\Filtered_data',
 # '.csv')
     in_fish_files_dict = getFiles(
         r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
         r'\out_plots_abbas\df_fish_flow_combined_with_angles',
-        '.csv', dir_kmz_for_fish_names)   #
+        '.csv', dir_kmz_for_fish_names)  #
 
     for fish_type in in_fish_files_dict.keys():
         for fish_file in in_fish_files_dict[fish_type]:
@@ -352,11 +285,11 @@ if __name__ == '__main__':
             try:
                 plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                                                 fish_shp_path, river_shp_path,
-                                                out_plots_dir)
+                                                out_data_dir)
 
                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
                                            fish_shp_path, river_shp_path,
-                                           out_plots_dir)
+                                           out_data_dir)
 
             except Exception as msg:
                 print(msg)

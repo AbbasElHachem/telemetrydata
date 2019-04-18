@@ -8,9 +8,15 @@ Created on 15-03-2019
 Institut fuer Wasser- und Umweltsystemmodellierung - IWS
 """
 from __future__ import division
-from _01_filter_fish_points_keep_only_in_river import getFiles
-from _02_filter_fish_data_based_on_HPE_Vel_RMSE import calculate_fish_velocity
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+                                         orig_station_file,
+                                         orig_data_dir,
+                                         out_data_dir,
+                                         img_loc)
+from _01_filter_fish_points_keep_only_in_river import (getFiles)
 
+from _02_filter_fish_data_based_on_HPE_Vel_RMSE import (calculate_fish_velocity,
+    filtered_out_data)
 
 from PIL import Image
 from matplotlib import style
@@ -29,7 +35,6 @@ import pandas as pd
 Image.MAX_IMAGE_PIXELS = 1000000000
 style.use('fivethirtyeight')
 
-
 #==============================================================================
 # # def what to plot
 #==============================================================================
@@ -39,34 +44,13 @@ plot_vel_hpe_rmse_filtered_data = False
 plot_original_histograms_and_marginals_vel_hpe_rmse_ = False
 plot_filtered_histograms_and_marginals_vel_hpe_rmse_ = False
 
-
 #==============================================================================
 # # def all directories and all required parameters
 #==============================================================================
-dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
-                          r'\2018_11_26_tracks_fish_vemco\kmz')
-assert os.path.exists(dir_kmz_for_fish_names)
 
-orig_data_dir = (r'E:\Work_with_Matthias_Schneider'
-                 r'\2018_11_26_tracks_fish_vemco\csv')
-assert os.path.exists(orig_data_dir)
-
-filtered_data_dir = (r'C:\Users\hachem\Desktop'
-                     r'\Work_with_Matthias_Schneider'
-                     r'\out_plots_abbas\Filtered_df_HPE_RMSE_VEL')
-assert os.path.exists(filtered_data_dir)
-
-out_save_dir = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-                r'\out_plots_abbas\Plots_HPE_RMSE_VEL')
+out_save_dir = os.path.join(out_data_dir, r'Plots_HPE_RMSE_VEL')
 if not os.path.exists(out_save_dir):
     os.mkdir(out_save_dir)
-
-orig_station_file = (r'E:\Work_with_Matthias_Schneider'
-                     r'\2018_11_26_tracks_fish_vemco\stations.csv')
-assert os.path.exists(orig_station_file)
-
-img_loc = r'E:\Work_with_Matthias_Schneider\GIS\orthoAll_small.jpg'
-assert os.path.exists(img_loc)
 
 # def some parameters (no need to change)
 # def extent of the river image for plotting
@@ -100,7 +84,6 @@ def savefig(fig_name, out_dir):
                        frameon=True, papertype='a4',
                        bbox_inches='tight', pad_inches=.2)
 
-
 #==============================================================================
 #
 #==============================================================================
@@ -118,7 +101,6 @@ def plot_img(img_loc, ax, img_transparancy=0.5):
     img = mpimg.imread(img_loc)
     imgplot = ax.imshow(img, extent=extent, alpha=img_transparancy)
     return imgplot
-
 
 #==============================================================================
 #
@@ -156,7 +138,6 @@ def transform_variables_to_uniform_marginals(fish_file, VarA, VarB,
             % (data_source_str, VarA, VarB),
             out_plots_dir)
     return
-
 
 #==============================================================================
 #
@@ -196,7 +177,6 @@ def plot_histogram(fish_file, fish_nbr, variable_to_plt,
     plt.clf()
     plt.close()
     return
-
 
 #==============================================================================
 #
@@ -250,7 +230,6 @@ def plot_Var_values(img_loc, orig_station_file, fish_file,
     plt.close()
     return
 
-
 #==============================================================================
 #
 #==============================================================================
@@ -258,7 +237,7 @@ def plot_Var_values(img_loc, orig_station_file, fish_file,
 
 def plot_variables(data_loc,
                    data_kmz_dir_4_names,
-                   out_save_dir,
+                   out_save_dir_fn,
                    data_source_str,
                    Velocity=False, RMSE=False, HPE=False):
     ''' fct used to plot scatter plot of all data files in given directory'''
@@ -278,17 +257,17 @@ def plot_variables(data_loc,
                 plot_Var_values(img_loc, orig_station_file, fish_file,
                                 fish_tag_nbr,
                                 'Fish_Swimming_Velocity_in_m_per_s',
-                                velocity_bounds, out_save_dir,
+                                velocity_bounds, out_save_dir_fn,
                                 data_source_str)
             if RMSE:
                 plot_Var_values(img_loc, orig_station_file, fish_file,
                                 fish_tag_nbr,
-                                'RMSE', RMSE_bounds, out_save_dir,
+                                'RMSE', RMSE_bounds, out_save_dir_fn,
                                 data_source_str)
             if HPE:
                 plot_Var_values(img_loc, orig_station_file, fish_file,
                                 fish_tag_nbr,
-                                'HPE', HPE_bounds, out_save_dir,
+                                'HPE', HPE_bounds, out_save_dir_fn,
                                 data_source_str)
             print('done saving data for: ', fish_file)
 
@@ -310,7 +289,7 @@ if __name__ == '__main__':
                        Velocity=True, RMSE=True, HPE=True)
 
     if plot_vel_hpe_rmse_filtered_data:
-        plot_variables(filtered_data_dir,
+        plot_variables(filtered_out_data,
                        dir_kmz_for_fish_names,
                        out_save_dir,
                        'filtered_data',
@@ -343,7 +322,7 @@ if __name__ == '__main__':
 
     if plot_filtered_histograms_and_marginals_vel_hpe_rmse_:
         # get files for every fish type
-        in_filtered_fish_files_dict = getFiles(filtered_data_dir, '.csv',
+        in_filtered_fish_files_dict = getFiles(filtered_out_data, '.csv',
                                                dir_kmz_for_fish_names)
 
         for fish_type in in_filtered_fish_files_dict.keys():

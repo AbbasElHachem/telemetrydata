@@ -24,12 +24,13 @@ __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
 from pathlib import Path
 
-from _03_plot_margingals_histograms_velocity_hpe_rmse import savefig
-from _03_plot_margingals_histograms_velocity_hpe_rmse import plot_img
-from _03_plot_margingals_histograms_velocity_hpe_rmse import img_loc
-from _03_plot_margingals_histograms_velocity_hpe_rmse import extent
-from _03_plot_margingals_histograms_velocity_hpe_rmse import fontsize
-from _03_plot_margingals_histograms_velocity_hpe_rmse import labelsize
+from _00_define_main_directories import img_loc
+
+from _03_plot_margingals_histograms_velocity_hpe_rmse import (savefig,
+                                                              plot_img,
+                                                              extent,
+                                                              fontsize,
+                                                              labelsize)
 
 from _04_plot_heatmaps import rvb
 

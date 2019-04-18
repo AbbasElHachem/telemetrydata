@@ -2,24 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """
+Script used to divide Fish dataframe into three predefined periods
+
+Periods are assumed to be related to bahavior
 """
 
 __author__ = "Abbas El Hachem"
 __copyright__ = 'Institut f�r Wasser- und Umweltsystemmodellierung - IWS'
 __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
-# ===================================================
+# =============================================================================
 
-from pathlib import Path
-
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+     orig_station_file, main_data_dir, out_data_dir)
+from _01_filter_fish_points_keep_only_in_river import getFiles
 import os
 import timeit
 import time
-
-
-main_dir = Path(os.getcwd())
-os.chdir(main_dir)
-
 
 # for extracting periods for Barbel fish
 periods_for_barbel = {'may_mid_june': ['2018-05-01 00:00:00.00',

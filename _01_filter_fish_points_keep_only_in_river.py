@@ -7,12 +7,13 @@ Institut fuer Wasser- und Umweltsystemmodellierung - IWS
 """
 from __future__ import division
 
+from _00_define_main_directories import (dir_kmz_for_fish_names, main_data_dir,
+    orig_station_file, out_data_dir, shp_path)
 import os
 import time
 import timeit
 
 from shapely.geometry import shape, Point
-
 
 import shapefile
 import pandas as pd
@@ -28,7 +29,7 @@ def getFiles(data_dir_, file_ext_str, dir_kmz_for_fish_names):
     def list_all_full_path(ext, file_dir):
         import fnmatch
         """
-        Purpose: To return full path of files in all dirs of a 
+        Purpose: To return full path of files in all dirs of a
                 given folder with a
                 given extension in ascending order.
         Description of the arguments:
@@ -146,10 +147,10 @@ def find_fish_in_river(df, river_shp, out_save_dir, fish_nbr, fish_type=None):
                                               sep=';', index_col=0)
         return df_points_only_in_river
 
-
 # =============================================================================
 #
 # =============================================================================
+
 
 def save_all_df_in_river(fish_file, out_data_dir, shp_path):
     ''' intersect points and shapefile river'''
@@ -162,36 +163,15 @@ def save_all_df_in_river(fish_file, out_data_dir, shp_path):
 
     return
 
-
 # =============================================================================
 #
 # =============================================================================
+
 
 if __name__ == '__main__':
 
     print('\a\a\a\a Started on %s \a\a\a\a\n' % time.asctime())
     START = timeit.default_timer()  # to get the runtime of the program
-
-    dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
-                              r'\2018_11_26_tracks_fish_vemco\kmz')
-    assert os.path.exists(dir_kmz_for_fish_names)
-
-    orig_station_file = (r'E:\Work_with_Matthias_Schneider'
-                         r'\2018_11_26_tracks_fish_vemco\stations.csv')
-    assert os.path.exists(orig_station_file)
-
-    main_data_dir = (r'E:\Work_with_Matthias_Schneider'
-                     r'\2018_11_26_tracks_fish_vemco')
-    assert os.path.exists(main_data_dir)
-    os.chdir(main_data_dir)
-
-    # out_plots_dir = r'E:\Work_with_Matthias_Schneider\out_plots_abbas'
-    out_data_dir = (r'C:\Users\hachem\Desktop'
-                    r'\Work_with_Matthias_Schneider\out_plots_abbas')
-
-    shp_path = (r'E:\Work_with_Matthias_Schneider'
-                r'\QGis_abbas\wanted_river_section.shp')
-    assert os.path.exists(shp_path)
 
     # start filtering the data, keep only in river
     in_orig_stn_df = read_OrigStn_DF(orig_station_file)

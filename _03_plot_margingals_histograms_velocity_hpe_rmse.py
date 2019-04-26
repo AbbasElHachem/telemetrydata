@@ -13,7 +13,7 @@ from _00_define_main_directories import (dir_kmz_for_fish_names,
                                          orig_data_dir,
                                          out_data_dir,
                                          img_loc)
-from _01_filter_fish_points_keep_only_in_river import (getFiles)
+from _01_filter_fish_points_keep_only_in_river import (getFiles, readDf)
 
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import (calculate_fish_velocity,
                                                         filtered_out_data)
@@ -149,7 +149,8 @@ def plot_histogram(fish_file, fish_nbr, variable_to_plt,
                    var_thr=None, use_log=False):
     ''' fct to plot histogram for a variable'''
     if data_source_str == 'original_data':
-        df_fish = calculate_fish_velocity(fish_file, wgs82, utm32)
+        df_fish_0 = readDf(fish_file)
+        df_fish = calculate_fish_velocity(df_fish_0, wgs82, utm32)
     if data_source_str == 'filtered_data':
         df_fish = pd.read_csv(fish_file, index_col=0, parse_dates=True)
     _, ax = plt.subplots(1, 1, figsize=(12, 8), dpi=100)
@@ -190,7 +191,8 @@ def plot_Var_values(img_loc, orig_station_file, fish_file,
     in_orig_stn_df = read_OrigStn_DF(orig_station_file)
 
     if data_source_str == 'original_data':
-        df_fish = calculate_fish_velocity(fish_file, wgs82, utm32)
+        df_fish_0 = readDf(fish_file)
+        df_fish = calculate_fish_velocity(df_fish_0, wgs82, utm32)
     if data_source_str == 'filtered_data':
         df_fish = pd.read_csv(fish_file, index_col=0, parse_dates=True)
 

@@ -20,19 +20,30 @@ INTERIMPATH = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\Altusried_X
 # In[2]:
 
 
-def distance(df, window):
+# def distance(df, window):
+#     if window % 2 > 0:
+#         print('Only even windows!')
+#         res = pd.NaT
+#     else:
+#         res = np.sqrt((df.x_new.shift(int(window / 2)) - df.x_new.shift(-int(window / 2)))**2 +
+#                       (df.y_new.shift(int(window / 2)) - df.y_new.shift(-int(window / 2)))**2)
+#     return res
+
+def distance(df, xcol, ycol, window):
     if window % 2 > 0:
         print('Only even windows!')
         res = pd.NaT
     else:
-        res = np.sqrt((df.x_new.shift(int(window / 2)) - df.x_new.shift(-int(window / 2)))**2 +
-                      (df.y_new.shift(int(window / 2)) - df.y_new.shift(-int(window / 2)))**2)
+        res = np.sqrt((df[xcol].shift(int(window / 2)) - df[xcol].shift(-int(window / 2)))**2 +
+                      (df[ycol].shift(int(window / 2)) - df[ycol].shift(-int(window / 2)))**2)
     return res
 
 
 # In[116]:
 
-
+fish_df = pd.read_csv(INTERIMPATH +
+                      r'\fish_2_barbel_46838_with_flow_data_cat_20_angles_and_max_gradients.csv',
+                      sep=',', index_col=0, parse_dates=True)
 graylings_df = pd.read_pickle(INTERIMPATH + r'\graylings_pos_par.pkl')
 # barbels_df = pd.read_pickle(INTERIMPATH + 'r\barbels_pos_par.pkl')
 
@@ -41,7 +52,7 @@ graylings_df = pd.read_pickle(INTERIMPATH + r'\graylings_pos_par.pkl')
 
 
 FL_tracks_grayling = pd.read_pickle(INTERIMPATH + r'\FL_tracks_grayling.pkl')
-# FL_tracks_barbel = pd.read_pickle(INTERIMPATH + 'FL_tracks_barbel.pkl')
+FL_tracks_barbel = pd.read_pickle(INTERIMPATH + r'\FL_tracks_barbel.pkl')
 
 
 # In[42]:
@@ -55,10 +66,10 @@ FL_tracks_grayling = pd.read_pickle(INTERIMPATH + r'\FL_tracks_grayling.pkl')
 
 # example fish: 46906
 
-ID = 46863
-
-fish_df = graylings_df[graylings_df.ID == str(ID)].copy()
-#fish_df = barbels_df[barbels_df.ID==str(ID)].copy()
+# ID = 46863
+ID = 46838
+# fish_df = graylings_df[graylings_df.ID == str(ID)].copy()
+# fish_df = barbels_df[barbels_df.ID==str(ID)].copy()
 
 
 # # Function for clustering
@@ -77,11 +88,14 @@ def resting_vs_moving(fish_df, sample_bin='5min', window=4, distance_threshold=1
     """
 
     # resample to calculate an average position in 5 minutes time
+    fish_df['Time'] = fish_df.index
     fish_resampled = fish_df.set_index('Time').resample(
         sample_bin).mean().dropna().reset_index(drop=False)
+#     fish_resampled = fish_df.index.resample(
+#         sample_bin).mean().dropna().reset_index(drop=False)
     # calculate the distance between previous and next resampled point => if
     # more than 10 m => gap
-    gaps = distance(fish_resampled.dropna(),
+    gaps = distance(fish_resampled.dropna(), 'Fish_x_coord', 'Fish_y_coord',
                     window=window).abs() > distance_threshold  # m
     # create a different group each time there is a gap
     groups = gaps.cumsum()
@@ -184,8 +198,8 @@ fig.autofmt_xdate()
 # In[128]:
 
 
-# fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
-fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
+fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
+# fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
 
 
 # In[127]:
@@ -194,7 +208,7 @@ fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
 # check if the fishladder tracks (if any) are part of the data classified
 # as "moving"
 for check_time in list(fishladder_tracks.time_in):
-    if len(moving.set_index('Time')[pd.to_datetime(check_time) - pd.Timedelta('5min'):check_time]) > 5:
+    if len(moving.set_index('Time')[pd.to_datetime(check_time) - pd.Timedelta('30min'):check_time]) > 10:
         print('Fishladder track ending at ' +
               str(check_time.round('1min')) + ' is in moving data.')
 

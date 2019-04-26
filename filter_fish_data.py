@@ -1420,7 +1420,7 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
         surrounding_nodes_coords = np.array(get_surrounding_nodes(x0, y0))
         nearset_neighbours = closest_node(np.array((x0, y0)),
                                           surrounding_nodes_coords)
-
+        # TODO FIX ME
 
 #         xcoords, ycoords = [], []
 #         for i in range(len(surrounding_nodes_coords)):

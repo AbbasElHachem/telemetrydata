@@ -35,8 +35,8 @@ vel_thr = 1.5
 
 filtered_out_data = os.path.join(out_data_dir, r'Filtered_df_HPE_RMSE_VEL')
 
-if not os.path.exists(filtered_out_data):
-    os.mkdir(filtered_out_data)
+# if not os.path.exists(filtered_out_data):
+#    os.mkdir(filtered_out_data)
 
 
 #==============================================================================

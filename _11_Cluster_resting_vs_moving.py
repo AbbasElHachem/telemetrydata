@@ -16,8 +16,11 @@ import matplotlib.pyplot as plt
 
 # INTERIMPATH = './'
 
-INTERIMPATH = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\Altusried_XY_plots'
+# INTERIMPATH = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\Altusried_XY_plots'
+INTERIMPATH = r'C:\Users\Abbas\Desktop\Work_with_Matthias_Schneider\Altusried_XY_plots'
+
 # In[2]:
+plot_results = False
 
 
 # def distance(df, window):
@@ -34,10 +37,14 @@ def distance(df, xcol, ycol, window):
         print('Only even windows!')
         res = pd.NaT
     else:
+<<<<<<< HEAD
         res = np.sqrt((df[xcol].shift(int(window / 2)) - df[xcol].shift(-int(window / 2)))**2 +
                       (df[ycol].shift(int(window / 2)) - df[ycol].shift(-int(window / 2)))**2)
+=======
+        res = np.sqrt((df.x_new.shift(int(window / 2)) - df.x_new.shift(-int(window / 2))) ** 2 +
+                      (df.y_new.shift(int(window / 2)) - df.y_new.shift(-int(window / 2))) ** 2)
+>>>>>>> branch 'master' of https://github.com/rockypy/telemetrydata.git
     return res
-
 
 # In[116]:
 
@@ -47,30 +54,31 @@ fish_df = pd.read_csv(INTERIMPATH +
 graylings_df = pd.read_pickle(INTERIMPATH + r'\graylings_pos_par.pkl')
 # barbels_df = pd.read_pickle(INTERIMPATH + 'r\barbels_pos_par.pkl')
 
-
 # In[61]:
-
 
 FL_tracks_grayling = pd.read_pickle(INTERIMPATH + r'\FL_tracks_grayling.pkl')
 FL_tracks_barbel = pd.read_pickle(INTERIMPATH + r'\FL_tracks_barbel.pkl')
 
-
 # In[42]:
-
 
 # barbels_df.ID.unique()
 
-
 # In[125]:
-
 
 # example fish: 46906
 
+<<<<<<< HEAD
 # ID = 46863
 ID = 46838
 # fish_df = graylings_df[graylings_df.ID == str(ID)].copy()
 # fish_df = barbels_df[barbels_df.ID==str(ID)].copy()
 
+=======
+ID = 46863
+
+fish_df = graylings_df[graylings_df.ID == str(ID)].copy()
+# fish_df = barbels_df[barbels_df.ID==str(ID)].copy()
+>>>>>>> branch 'master' of https://github.com/rockypy/telemetrydata.git
 
 # # Function for clustering
 
@@ -145,7 +153,6 @@ def resting_vs_moving(fish_df, sample_bin='5min', window=4, distance_threshold=1
 
     return fish_df, segments_df
 
-
 # In[123]:
 
 
@@ -156,122 +163,123 @@ resting = fish_df[fish_df.group == 0.0]
 moving_seg = segments_df[segments_df.group == 1.0]
 resting_seg = segments_df[segments_df.group == 0.0]
 
-
 # # Plot results
 
 # In[124]:
 
+if plot_results:
+    fig, (ax, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize=(8, 9))
 
-fig, (ax, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize=(8, 9))
+    ax.plot(resting.Time, resting.x_new, marker='.',
+            lw=0, c='green', label='resting')
+    ax.plot(moving.Time, moving.x_new, marker='.', lw=0, c='red', label='moving')
+    ax.legend()
+    ax.set_title('Movement in x-direction of original data')
+    # ax.set_xlim(('2018-06-05 06', '2018-06-07 12'))
 
-ax.plot(resting.Time, resting.x_new, marker='.',
-        lw=0, c='green', label='resting')
-ax.plot(moving.Time, moving.x_new, marker='.', lw=0, c='red', label='moving')
-ax.legend()
-ax.set_title('Movement in x-direction of original data')
-#ax.set_xlim(('2018-06-05 06', '2018-06-07 12'))
+    ax2.plot(resting.Time, resting.y_new, marker='.',
+             lw=0, c='green', label='resting')
+    ax2.plot(moving.Time, moving.y_new, marker='.', lw=0, c='red', label='moving')
+    ax2.legend()
+    ax2.set_title('Movement in y-direction of original data')
 
-ax2.plot(resting.Time, resting.y_new, marker='.',
-         lw=0, c='green', label='resting')
-ax2.plot(moving.Time, moving.y_new, marker='.', lw=0, c='red', label='moving')
-ax2.legend()
-ax2.set_title('Movement in y-direction of original data')
+    ax3.plot(resting_seg.Time, resting_seg.x_new,
+             marker='.', lw=0, c='green', label='resting')
+    ax3.plot(moving_seg.Time, moving_seg.x_new,
+             marker='.', lw=0, c='red', label='moving')
+    ax3.legend()
+    ax3.set_title('Movement in x-direction for only accepted segments')
 
-ax3.plot(resting_seg.Time, resting_seg.x_new,
-         marker='.', lw=0, c='green', label='resting')
-ax3.plot(moving_seg.Time, moving_seg.x_new,
-         marker='.', lw=0, c='red', label='moving')
-ax3.legend()
-ax3.set_title('Movement in x-direction for only accepted segments')
+    fig.autofmt_xdate()
 
-fig.autofmt_xdate()
+    # Some test periods to check (for 46906)
+    # ax.set_xlim(('2018-05-09 03', '2018-05-10 00'))
+    # ax.set_xlim(('2018-04-04 12:20', '2018-04-05'))
+    # ax.set_xlim(('2018-04-06 02','2018-04-06 04'))
+    # ax.set_xlim(('2018-05-07 12','2018-05-10 00'))
 
-# Some test periods to check (for 46906)
-#ax.set_xlim(('2018-05-09 03', '2018-05-10 00'))
-#ax.set_xlim(('2018-04-04 12:20', '2018-04-05'))
-#ax.set_xlim(('2018-04-06 02','2018-04-06 04'))
-#ax.set_xlim(('2018-05-07 12','2018-05-10 00'))
+    # # Check migration tracks to fishladder
 
+    # In[128]:
 
-# # Check migration tracks to fishladder
+    # fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
+    fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
 
-# In[128]:
+    # In[127]:
 
+    # check if the fishladder tracks (if any) are part of the data classified
+    # as "moving"
+    for check_time in list(fishladder_tracks.time_in):
+        if len(moving.set_index('Time')[pd.to_datetime(check_time) - pd.Timedelta('5min'):check_time]) > 5:
+            print('Fishladder track ending at ' +
+                  str(check_time.round('1min')) + ' is in moving data.')
 
+<<<<<<< HEAD
 fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
 # fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
+=======
+    # # Check some parameters for both groups
+>>>>>>> branch 'master' of https://github.com/rockypy/telemetrydata.git
 
+    # In[129]:
 
-# In[127]:
+    fig, ax = plt.subplots()
+    ax.boxplot([resting.turning_angle.dropna(),
+                moving.turning_angle.dropna()], positions=[1, 2])
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels(['resting', 'moving'])
+    ax.set_title('Turning angles (angle between previous and next position)')
+    ax.set_ylim(-5, 185)
+    ax.set_yticks(np.arange(0, 181, 30))
+    ax.set_ylabel('angle °')
 
+    # **Resting positions tend to have more <90° turning angles. Moving positions have more > 90° angles, indicating movement in a certain direction, following a line or curve.**
 
+<<<<<<< HEAD
 # check if the fishladder tracks (if any) are part of the data classified
 # as "moving"
 for check_time in list(fishladder_tracks.time_in):
     if len(moving.set_index('Time')[pd.to_datetime(check_time) - pd.Timedelta('30min'):check_time]) > 10:
         print('Fishladder track ending at ' +
               str(check_time.round('1min')) + ' is in moving data.')
+=======
+    # In[130]:
+>>>>>>> branch 'master' of https://github.com/rockypy/telemetrydata.git
 
+    fig, ax = plt.subplots()
+    ax.boxplot([resting.flow_fish_angle.dropna(),
+                moving.flow_fish_angle.dropna()], positions=[1, 2])
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels(['resting', 'moving'])
+    ax.set_title('Angle between flow and fish velocity')
+    ax.set_ylim(-5, 185)
+    ax.set_yticks(np.arange(0, 181, 30))
+    ax.set_ylabel('angle °')
 
-# # Check some parameters for both groups
+    # **Resting positions tend to have angles versus the flow in all possible directions, corresponding to a boxplot of random distribution (centred around the mean angle of 90°). Moving positions have more directed angles, with or against the flow.**
 
-# In[129]:
+    # In[131]:
 
+    fig, ax = plt.subplots()
+    ax.boxplot([resting.Velocity.dropna(),
+                moving.Velocity.dropna()], positions=[1, 2])
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels(['resting', 'moving'])
+    ax.set_title('Fish velocity')
+    ax.set_ylabel('velocity (m/s)')
 
-fig, ax = plt.subplots()
-ax.boxplot([resting.turning_angle.dropna(),
-            moving.turning_angle.dropna()], positions=[1, 2])
-ax.set_xticks([1, 2])
-ax.set_xticklabels(['resting', 'moving'])
-ax.set_title('Turning angles (angle between previous and next position)')
-ax.set_ylim(-5, 185)
-ax.set_yticks(np.arange(0, 181, 30))
-ax.set_ylabel('angle °')
+    # **Moving positions tend to have higher velocities.**
 
+    # In[132]:
 
-# **Resting positions tend to have more <90° turning angles. Moving positions have more > 90° angles, indicating movement in a certain direction, following a line or curve.**
+    fig, ax = plt.subplots()
+    ax.boxplot([resting.TimeOfDay_float.dropna(),
+                moving.TimeOfDay_float.dropna()], positions=[1, 2])
+    ax.set_xticks([1, 2])
+    ax.set_xticklabels(['resting', 'moving'])
+    ax.set_title('Time of day')
+    ax.set_ylabel('Time of day (hours)')
+    ax.set_ylim(-1, 25)
+    ax.set_yticks(np.arange(0, 25, 6))
 
-# In[130]:
-
-
-fig, ax = plt.subplots()
-ax.boxplot([resting.flow_fish_angle.dropna(),
-            moving.flow_fish_angle.dropna()], positions=[1, 2])
-ax.set_xticks([1, 2])
-ax.set_xticklabels(['resting', 'moving'])
-ax.set_title('Angle between flow and fish velocity')
-ax.set_ylim(-5, 185)
-ax.set_yticks(np.arange(0, 181, 30))
-ax.set_ylabel('angle °')
-
-
-# **Resting positions tend to have angles versus the flow in all possible directions, corresponding to a boxplot of random distribution (centred around the mean angle of 90°). Moving positions have more directed angles, with or against the flow.**
-
-# In[131]:
-
-
-fig, ax = plt.subplots()
-ax.boxplot([resting.Velocity.dropna(),
-            moving.Velocity.dropna()], positions=[1, 2])
-ax.set_xticks([1, 2])
-ax.set_xticklabels(['resting', 'moving'])
-ax.set_title('Fish velocity')
-ax.set_ylabel('velocity (m/s)')
-
-
-# **Moving positions tend to have higher velocities.**
-
-# In[132]:
-
-
-fig, ax = plt.subplots()
-ax.boxplot([resting.TimeOfDay_float.dropna(),
-            moving.TimeOfDay_float.dropna()], positions=[1, 2])
-ax.set_xticks([1, 2])
-ax.set_xticklabels(['resting', 'moving'])
-ax.set_title('Time of day')
-ax.set_ylabel('Time of day (hours)')
-ax.set_ylim(-1, 25)
-ax.set_yticks(np.arange(0, 25, 6))
-
-plt.show()
+    plt.show()

@@ -261,6 +261,115 @@ def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
     plt.close()
     return
 
+
+#==============================================================================
+#
+#==============================================================================
+
+
+def plot_3d_plot_group_as_color(fish_file, fish_nbr, flow_cat,
+                                fishshp, rivershp, out_save_dir):
+
+    fig = plt.figure(figsize=(40, 20), dpi=75)
+#     # fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
+#     # ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.pane.set_edgecolor('black')
+    ax.yaxis.pane.set_edgecolor('black')
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.set_major_locator(LinearLocator(10))
+    ax.xaxis.set_major_formatter(FormatStrFormatter('%.04f'))
+    ax.yaxis.set_major_locator(LinearLocator(10))
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.04f'))
+
+    in_df = pd.read_feather(fish_file, use_threads=4)
+    in_df.set_index('Time', inplace=True)
+    in_df.index = pd.to_datetime(in_df.index, format='%Y-%m-%d %H:%M:%S.%f')
+    x_vals = in_df.Longitude.values
+    y_vals = in_df.Latitude.values
+
+    z_vals = in_df.index.to_pydatetime()
+    dates_formatted = [pd.to_datetime(d) for d in z_vals]
+    z_vals_ix = np.arange(0, len(z_vals), 1)
+
+    z_vals_colrs = in_df['group'].values
+
+    bounds = {0: 0, 1: 1, 2: 2}
+    clrs = ['navy', 'darkorange', 'darkred']
+    cmap = mcolors.ListedColormap(clrs)
+    for ix, val in zip(in_df.index, z_vals_colrs):
+        for k, v in bounds.items():
+            if v == val:
+                in_df.loc[ix, 'colors'] = clrs[k]
+
+    colors_ = in_df.colors
+    ticks = [0, 1, 2]
+
+    ax.scatter3D(x_vals, y_vals, zs=z_vals_ix, zdir='z',
+                 c=colors_, alpha=0.25, marker=',', s=8)
+
+    ax.plot3D(x_vals, y_vals, zs=z_vals_ix, zdir='z',
+              c='k', alpha=0.25, linewidth=0.55)
+
+    sf_river = shapefile.Reader(rivershp)
+
+    for shape_ in sf_river.shapeRecords():
+        x0 = [i[0] for i in shape_.shape.points[:][::-1]]
+        y0 = [i[1] for i in shape_.shape.points[:][::-1]]
+        lon, lat = convert_coords_fr_wgs84_to_utm32_(utm32, wgs82, x0, y0)
+        ax.plot3D(lon, lat, 0, zdir='z',
+                  color='k', alpha=0.25,
+                  marker='.', linewidth=0.51,
+                  label='River Boundary Area')
+
+    sf = shapefile.Reader(fishshp)
+    for shape_ in sf.shapeRecords():
+        x0 = [i[0] for i in shape_.shape.points[:][::-1]]
+        y0 = [i[1] for i in shape_.shape.points[:][::-1]]
+        ax.plot3D(x0, y0, 0, zdir='z',
+                  color='k', alpha=0.65,
+                  marker='+', linewidth=1,
+                  label='Fish Pass Area')
+
+    ax.scatter3D(10.2247927, 47.8186509, zs=z_vals_ix, zdir='z',
+                 c='maroon', alpha=0.5, marker='D', s=40,
+                 label='Fish pass entrance')
+    ax.zaxis.set_ticks(
+        z_vals_ix[::int(np.round(z_vals_ix.shape[0] / 15))])
+    ax.zaxis.set_ticklabels(
+        dates_formatted[::int(np.round(z_vals_ix.shape[0] / 15))])
+    ax.set_xlabel('Longitude (x-axis)')
+    ax.set_ylabel('Latitude (y-axis)')
+
+    ax.set_title('Fish_%s_Flow_%s_colors_refer_to_%s'
+                 % (fish_nbr, flow_cat,
+                    'Behaviour_group'), y=0.98)
+#     ax.set_xlim(10.223, 10.226), ax.set_ylim(47.818, 47.820)
+    ax.set_xlim(min(lon), max(lon)), ax.set_ylim(min(lat), max(lat))
+    norm = mcolors.BoundaryNorm(ticks, cmap.N)
+    ax_legend = fig.add_axes([0.1725, 0.07525, 0.68, 0.0225], zorder=3)
+    cb = mpl.colorbar.ColorbarBase(ax_legend, ticks=ticks, extend='max',
+                                   boundaries=ticks, norm=norm, cmap=cmap,
+                                   orientation='horizontal')
+
+    cb.set_label('Behaviour_group')
+#     ax.set_aspect('auto')
+
+#     for angle in range(0, 360):
+    ax.view_init(25, 275)
+
+    ax.legend(loc='upper right', frameon=True)
+    cb.draw_all()
+    cb.set_alpha(1)
+#     plt.tight_layout()
+    plt.savefig(os.path.join(out_save_dir,
+                             '3d_%s_%s_%s_.png'
+                             % (fish_nbr, flow_cat,
+                                'Behaviour_group')))
+    plt.close()
+    return
 # %%
 
 
@@ -271,34 +380,44 @@ if __name__ == '__main__':
 
 #    in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\Filtered_data',
 # '.csv')
-    in_fish_files_dict = getFiles(
-        r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-        r'\out_plots_abbas\df_fish_flow_combined_with_angles',
-        '.csv', dir_kmz_for_fish_names)  #
+    fish_file = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\df_fish_flow_combined_with_angles\fish_barbel_46838_with_flow_data_10_and_angles_and_behaviour.ft'
+    fish_nbr = 'barbel_46838'
+    flow_cat = '10'
 
-    for fish_type in in_fish_files_dict.keys():
-        for fish_file in in_fish_files_dict[fish_type]:
-            print(fish_file)
-
-            fish_nbr = fish_type + fish_file[-47:-42]
-            # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
-            flow_cat = fish_file[-11:-5]
-            # 'not_considered'  # fish_file[-11:-5]
-
-            try:
-                plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
-                                                fish_shp_path, river_shp_path,
-                                                out_data_dir)
-
-                plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
-                                           fish_shp_path, river_shp_path,
-                                           out_data_dir)
-
-            except Exception as msg:
-                print(msg)
-                continue
-            break
-        break
+    plot_3d_plot_group_as_color(fish_file,
+                                fish_nbr,
+                                flow_cat,
+                                fish_shp_path,
+                                river_shp_path,
+                                out_data_dir)
+#     in_fish_files_dict = getFiles(
+#         r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
+#         r'\out_plots_abbas\df_fish_flow_combined_with_angles',
+#         '.csv', dir_kmz_for_fish_names)  #
+#
+#     for fish_type in in_fish_files_dict.keys():
+#         for fish_file in in_fish_files_dict[fish_type]:
+#             print(fish_file)
+#
+#             fish_nbr = fish_type + fish_file[-47:-42]
+#             # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
+#             flow_cat = fish_file[-11:-5]
+#             # 'not_considered'  # fish_file[-11:-5]
+#
+#             try:
+#                 plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
+#                                                 fish_shp_path, river_shp_path,
+#                                                 out_data_dir)
+#
+#                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
+#                                            fish_shp_path, river_shp_path,
+#                                            out_data_dir)
+#
+#             except Exception as msg:
+#                 print(msg)
+#                 continue
+#             break
+#         break
     END = timeit.default_timer()
 
     print('Program ended at: ', time.asctime(),

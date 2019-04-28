@@ -6,10 +6,10 @@ Created on 18.04.2019
 
 import os
 
-# dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
-#                          r'\2018_11_26_tracks_fish_vemco\kmz')
+dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
+                          r'\2018_11_26_tracks_fish_vemco\kmz')
 
-dir_kmz_for_fish_names = r'C:\Users\Abbas\Desktop\Work_with_Matthias_Schneider\2018_11_26_tracks_fish_vemco\kmz'
+# dir_kmz_for_fish_names = r'C:\Users\Abbas\Desktop\Work_with_Matthias_Schneider\2018_11_26_tracks_fish_vemco\kmz'
 assert os.path.exists(dir_kmz_for_fish_names)
 
 orig_data_dir = (r'E:\Work_with_Matthias_Schneider'

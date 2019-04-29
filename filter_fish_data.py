@@ -1573,11 +1573,11 @@ if __name__ == '__main__':
                 fish_file[-47:-42]  # fish_file[-41:-36]
 
 #             if fish_nbr == '2_barbel_46849':
-            if fish_nbr == '1_grayling_46907':
-                print(fish_file)
-                # raise Exception
-                # 'not_considered'  # fish_file[-11:-5]
-                flow_cat = fish_file[-11:-5]  # fish_file[-20:-14]  #
+#             if fish_nbr == '1_grayling_46907':
+            print(fish_file)
+            # raise Exception
+            # 'not_considered'  # fish_file[-11:-5]
+            flow_cat = fish_file[-11:-5]  # fish_file[-20:-14]  #
 
 #                 fish_flow_df = pd.read_csv(fish_file, sep=',', index_col=0,
 #                                            engine='c')
@@ -1587,18 +1587,18 @@ if __name__ == '__main__':
 #                                  r'fish_%s_with_flow_data_%s_and_angles.ft'
 #                                  % (fish_nbr, flow_cat)))
 
-        #                 try:
-            #                 pass
+    #                 try:
+        #                 pass
 
-                d = calc_max_gradient_direct(fish_file, flow_cat, fish_nbr)
-                print(d)
+            d = calc_max_gradient_direct(fish_file, flow_cat, fish_nbr)
+            # print(d)
 #                 raise Exception
-#                 plot_difference_in_angle(d, fish_nbr, flow_cat,
-#                                          'Angle_swim_direction_and_max_depth_%s_gradient_difference'
-#                                          % str(flow_cat[-2:]))
-#                 plot_difference_in_angle(d, fish_nbr, flow_cat,
-#                                          'Angle_swim_direction_and_max_velM_%s_gradient_difference'
-#                                          % str(flow_cat[-2:]))
+            plot_difference_in_angle(d, fish_nbr, flow_cat,
+                                     'Angle_swim_direction_and_max_depth_%s_gradient_difference'
+                                     % str(flow_cat[-2:]))
+            plot_difference_in_angle(d, fish_nbr, flow_cat,
+                                     'Angle_swim_direction_and_max_velM_%s_gradient_difference'
+                                     % str(flow_cat[-2:]))
     #                raise Exception
         #                        dd = compare_fish_and_flow_direction(fish_file,
         #                                                             fish_nbr,

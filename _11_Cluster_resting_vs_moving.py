@@ -160,9 +160,9 @@ resting = fish_df[fish_df.group == 0.0]
 moving_seg = segments_df[segments_df.group == 1.0]
 resting_seg = segments_df[segments_df.group == 0.0]
 
-fish_df.to_feather(
+fish_df.to_csv(
     os.path.join(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas', r'df_fish_flow_combined_with_angles',
-                 r'fish_barbel_%s_with_flow_data_%s_and_angles_and_behaviour.ft'
+                 r'fish_barbel_%s_with_flow_data_%s_and_angles_and_behaviour.csv'
                  % (ID, '10')))
 # # Plot results
 

@@ -46,7 +46,7 @@ def distance(df, xcol, ycol, window):
 # In[116]:
 
 
-fish_df = pd.read_csv(INTERIMPATH + r'\fish_2_barbel_46838_with_flow_data_cat_10_angles_and_max_gradients.csv',
+fish_df = pd.read_csv(INTERIMPATH + r'\fish_2_barbel_46838_with_flow_data_cat_40_angles_and_max_gradients.csv',
                       sep=',', index_col=0, parse_dates=True)
 # graylings_df = pd.read_pickle(INTERIMPATH + r'\graylings_pos_par.pkl')
 # barbels_df = pd.read_pickle(INTERIMPATH + 'r\barbels_pos_par.pkl')
@@ -82,7 +82,8 @@ ID = 46838
 # In[55]:
 
 
-def resting_vs_moving(fish_df, sample_bin='5min', window=4, distance_threshold=10, min_elements=5):
+def resting_vs_moving(fish_df, sample_bin='5min', window=4,
+                      distance_threshold=10, min_elements=5):
     """
     fish_df : df, containing positions of one fish
     sample_bin : Str, time bin to resample, e.g. '5min'
@@ -141,7 +142,7 @@ def resting_vs_moving(fish_df, sample_bin='5min', window=4, distance_threshold=1
 
     # put "group" column on 1 (moving) => resting segments will be put on 0
     fish_df['group'] = 1
-    fish_df = fish_df.set_index('Time')
+    fish_df = fish_df.set_index('Time', inplace=True)
 
     for i in resting_segments.index:
         fish_df.loc[segment_summary.loc[i].begin:segment_summary.loc[i].end, 'group'] = 0
@@ -160,10 +161,37 @@ resting = fish_df[fish_df.group == 0.0]
 moving_seg = segments_df[segments_df.group == 1.0]
 resting_seg = segments_df[segments_df.group == 0.0]
 
+# # Check migration tracks to fishladder
+
+# In[128]:
+
+fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
+# fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
+
+# In[127]:
+
+# check if the fishladder tracks (if any) are part of the data classified
+# as "moving"
+for check_time in list(fishladder_tracks.time_in):
+    if len(fish_df[pd.to_datetime(check_time) -
+                   pd.Timedelta('10min'):check_time]) > 5:
+        print('Fishladder track ending at ' +
+              str(check_time.round('1min')) + ' is in moving data.')
+        idx_wanted = fish_df[pd.to_datetime(check_time) -
+                             pd.Timedelta('10min'):check_time].index
+
+        fish_df.loc[idx_wanted, 'group'] = 2
+raise Exception
 fish_df.to_csv(
     os.path.join(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas', r'df_fish_flow_combined_with_angles',
                  r'fish_barbel_%s_with_flow_data_%s_and_angles_and_behaviour.csv'
-                 % (ID, '10')))
+                 % (ID, '40')))
+
+# fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
+# fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
+
+# # Check some parameters for both groups
+
 # # Plot results
 
 # In[124]:
@@ -200,28 +228,6 @@ if plot_results:
     # ax.set_xlim(('2018-04-04 12:20', '2018-04-05'))
     # ax.set_xlim(('2018-04-06 02','2018-04-06 04'))
     # ax.set_xlim(('2018-05-07 12','2018-05-10 00'))
-
-# # Check migration tracks to fishladder
-
-# In[128]:
-
-fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
-# fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
-
-# In[127]:
-
-# check if the fishladder tracks (if any) are part of the data classified
-# as "moving"
-for check_time in list(fishladder_tracks.time_in):
-    if len(moving.set_index('Time')[pd.to_datetime(check_time) - pd.Timedelta('30min'):check_time]) > 5:
-        print('Fishladder track ending at ' +
-              str(check_time.round('1min')) + ' is in moving data.')
-
-
-fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
-# fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
-
-# # Check some parameters for both groups
 
 
 # In[129]:

@@ -12,9 +12,14 @@
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import os
-# INTERIMPATH = './'
+
+from _00_define_main_directories import dir_kmz_for_fish_names
+from _01_filter_fish_points_keep_only_in_river import getFiles
+
+path_to_df_files = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\df_fish_flow_combined_with_angles_gradients_behavoir'
+dfs_Type_dict = getFiles(path_to_df_files, '.csv', dir_kmz_for_fish_names)
 
 INTERIMPATH = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\Altusried_XY_plots'
 # INTERIMPATH = r'C:\Users\Abbas\Desktop\Work_with_Matthias_Schneider\Altusried_XY_plots'
@@ -23,50 +28,32 @@ assert os.path.exists(INTERIMPATH)
 plot_results = False
 
 
-# def distance(df, window):
-#     if window % 2 > 0:
-#         print('Only even windows!')
-#         res = pd.NaT
-#     else:
-#         res = np.sqrt((df.x_new.shift(int(window / 2)) - df.x_new.shift(-int(window / 2)))**2 +
-#                       (df.y_new.shift(int(window / 2)) - df.y_new.shift(-int(window / 2)))**2)
-#     return res
-
 def distance(df, xcol, ycol, window):
     if window % 2 > 0:
         print('Only even windows!')
         res = pd.NaT
     else:
 
-        res = np.sqrt((df[xcol].shift(int(window / 2)) - df[xcol].shift(-int(window / 2)))**2 +
-                      (df[ycol].shift(int(window / 2)) - df[ycol].shift(-int(window / 2)))**2)
+        res = np.sqrt((df[xcol].shift(int(window / 2)) -
+                       df[xcol].shift(-int(window / 2)))**2 +
+                      (df[ycol].shift(int(window / 2)) -
+                          df[ycol].shift(-int(window / 2)))**2)
 
     return res
 
 # In[116]:
 
 
-fish_df = pd.read_csv(INTERIMPATH + r'\fish_2_barbel_46838_with_flow_data_cat_40_angles_and_max_gradients.csv',
-                      sep=',', index_col=0, parse_dates=True)
-# graylings_df = pd.read_pickle(INTERIMPATH + r'\graylings_pos_par.pkl')
-# barbels_df = pd.read_pickle(INTERIMPATH + 'r\barbels_pos_par.pkl')
-
-# In[61]:
-
 FL_tracks_grayling = pd.read_pickle(INTERIMPATH + r'\FL_tracks_grayling.pkl')
 FL_tracks_barbel = pd.read_pickle(INTERIMPATH + r'\FL_tracks_barbel.pkl')
 
-# In[42]:
 
-# barbels_df.ID.unique()
-
-# In[125]:
-
-# example fish: 46906
+# graylings_df = pd.read_pickle(INTERIMPATH + r'\graylings_pos_par.pkl')
+# barbels_df = pd.read_pickle(INTERIMPATH + 'r\barbels_pos_par.pkl')
 
 
 # ID = 46863
-ID = 46838
+# ID = 46838
 # fish_df = graylings_df[graylings_df.ID == str(ID)].copy()
 # fish_df2 = barbels_df[barbels_df.ID == str(ID)].copy()
 
@@ -142,50 +129,77 @@ def resting_vs_moving(fish_df, sample_bin='5min', window=4,
 
     # put "group" column on 1 (moving) => resting segments will be put on 0
     fish_df['group'] = 1
-    fish_df = fish_df.set_index('Time', inplace=True)
 
     for i in resting_segments.index:
-        fish_df.loc[segment_summary.loc[i].begin:segment_summary.loc[i].end, 'group'] = 0
+        fish_df.loc[segment_summary.loc[i].begin:segment_summary.loc[i].end,
+                    'group'] = 0
 
-    fish_df = fish_df.reset_index(drop=False)
-
+#     fish_df = fish_df.reset_index(drop=False)
+#     fish_df = fish_df.set_index('Time', inplace=True)
     return fish_df, segments_df
 
 # In[123]:
 
 
-fish_df, segments_df = resting_vs_moving(
-    fish_df, sample_bin='5min', window=4, distance_threshold=10, min_elements=5)
-moving = fish_df[fish_df.group == 1.0]
-resting = fish_df[fish_df.group == 0.0]
-moving_seg = segments_df[segments_df.group == 1.0]
-resting_seg = segments_df[segments_df.group == 0.0]
+for fish_type in dfs_Type_dict.keys():
+    for fish_file in dfs_Type_dict[fish_type]:
+        print(fish_file)
+        fish_id = fish_file[-56:-51]
+
+        fish_nbr = fish_type + '_' + fish_id  # fish_file[-41:-36]
+        try:
+            fish_df_in = pd.read_csv(fish_file,
+                                     sep=',', index_col=0,
+                                     parse_dates=True)
+
+            fish_df, segments_df = resting_vs_moving(
+                fish_df_in, sample_bin='5min', window=4,
+                distance_threshold=10, min_elements=5)
+
+            if fish_type == '1_grayling':
+                fishladder_tracks = FL_tracks_grayling[
+                    FL_tracks_grayling.ID == int(fish_id)]
+
+            if fish_type == '2_barbel':
+                fishladder_tracks = FL_tracks_barbel[
+                    FL_tracks_barbel.ID == int(fish_id)]
+
+            for check_time in list(fishladder_tracks.time_in):
+                if len(fish_df[pd.to_datetime(check_time) -
+                               pd.Timedelta('10min'):check_time]) > 5:
+                    print('Fishladder track ending at ' +
+                          str(check_time.round('1min')) + ' is in moving data.')
+                    idx_wanted = fish_df[pd.to_datetime(check_time) -
+                                         pd.Timedelta('10min'):check_time].index
+                    if len(idx_wanted) > 0:
+                        fish_df.loc[idx_wanted, 'group'] = 2
+            fish_df.to_csv(
+                os.path.join(r'%s_with_behavior.csv'
+                             % (fish_file[:-4])))
+        except Exception as msg:
+            print(msg)
+            continue
+#         break
+#     break
+
+
+# moving = fish_df[fish_df.group == 1.0]
+# resting = fish_df[fish_df.group == 0.0]
+# moving_seg = segments_df[segments_df.group == 1.0]
+# resting_seg = segments_df[segments_df.group == 0.0]
 
 # # Check migration tracks to fishladder
 
 # In[128]:
 
-fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
-# fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
+
+#
 
 # In[127]:
 
 # check if the fishladder tracks (if any) are part of the data classified
 # as "moving"
-for check_time in list(fishladder_tracks.time_in):
-    if len(fish_df[pd.to_datetime(check_time) -
-                   pd.Timedelta('10min'):check_time]) > 5:
-        print('Fishladder track ending at ' +
-              str(check_time.round('1min')) + ' is in moving data.')
-        idx_wanted = fish_df[pd.to_datetime(check_time) -
-                             pd.Timedelta('10min'):check_time].index
 
-        fish_df.loc[idx_wanted, 'group'] = 2
-raise Exception
-fish_df.to_csv(
-    os.path.join(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas', r'df_fish_flow_combined_with_angles',
-                 r'fish_barbel_%s_with_flow_data_%s_and_angles_and_behaviour.csv'
-                 % (ID, '40')))
 
 # fishladder_tracks = FL_tracks_barbel[FL_tracks_barbel.ID == ID]
 # fishladder_tracks = FL_tracks_grayling[FL_tracks_grayling.ID == ID]
@@ -196,38 +210,38 @@ fish_df.to_csv(
 
 # In[124]:
 
-if plot_results:
-    fig, (ax, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize=(8, 9))
+# if plot_results:
+#     fig, (ax, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize=(8, 9))
+#
+#     ax.plot(resting.Time, resting.Fish_x_coord, marker='.',
+#             lw=0, c='green', label='resting')
+#     ax.plot(moving.Time, moving.Fish_x_coord, marker='.',
+#             lw=0, c='red', label='moving')
+#     ax.legend()
+#     ax.set_title('Movement in x-direction of original data')
+#     # ax.set_xlim(('2018-06-05 06', '2018-06-07 12'))
+#
+#     ax2.plot(resting.Time, resting.Fish_y_coord, marker='.',
+#              lw=0, c='green', label='resting')
+#     ax2.plot(moving.Time, moving.Fish_y_coord, marker='.',
+#              lw=0, c='red', label='moving')
+#     ax2.legend()
+#     ax2.set_title('Movement in y-direction of original data')
+#
+#     ax3.plot(resting_seg.Time, resting_seg.Fish_x_coord,
+#              marker='.', lw=0, c='green', label='resting')
+#     ax3.plot(moving_seg.Time, moving_seg.Fish_x_coord,
+#              marker='.', lw=0, c='red', label='moving')
+#     ax3.legend()
+#     ax3.set_title('Movement in x-direction for only accepted segments')
+#
+#     fig.autofmt_xdate()
 
-    ax.plot(resting.Time, resting.Fish_x_coord, marker='.',
-            lw=0, c='green', label='resting')
-    ax.plot(moving.Time, moving.Fish_x_coord, marker='.',
-            lw=0, c='red', label='moving')
-    ax.legend()
-    ax.set_title('Movement in x-direction of original data')
-    # ax.set_xlim(('2018-06-05 06', '2018-06-07 12'))
-
-    ax2.plot(resting.Time, resting.Fish_y_coord, marker='.',
-             lw=0, c='green', label='resting')
-    ax2.plot(moving.Time, moving.Fish_y_coord, marker='.',
-             lw=0, c='red', label='moving')
-    ax2.legend()
-    ax2.set_title('Movement in y-direction of original data')
-
-    ax3.plot(resting_seg.Time, resting_seg.Fish_x_coord,
-             marker='.', lw=0, c='green', label='resting')
-    ax3.plot(moving_seg.Time, moving_seg.Fish_x_coord,
-             marker='.', lw=0, c='red', label='moving')
-    ax3.legend()
-    ax3.set_title('Movement in x-direction for only accepted segments')
-
-    fig.autofmt_xdate()
-
-    # Some test periods to check (for 46906)
-    # ax.set_xlim(('2018-05-09 03', '2018-05-10 00'))
-    # ax.set_xlim(('2018-04-04 12:20', '2018-04-05'))
-    # ax.set_xlim(('2018-04-06 02','2018-04-06 04'))
-    # ax.set_xlim(('2018-05-07 12','2018-05-10 00'))
+# Some test periods to check (for 46906)
+# ax.set_xlim(('2018-05-09 03', '2018-05-10 00'))
+# ax.set_xlim(('2018-04-04 12:20', '2018-04-05'))
+# ax.set_xlim(('2018-04-06 02','2018-04-06 04'))
+# ax.set_xlim(('2018-05-07 12','2018-05-10 00'))
 
 
 # In[129]:

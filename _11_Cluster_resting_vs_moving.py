@@ -84,8 +84,6 @@ def resting_vs_moving(fish_df, sample_bin='5min', window=4,
     fish_df['Time'] = fish_df.index
     fish_resampled = fish_df.set_index('Time').resample(
         sample_bin).mean().dropna().reset_index(drop=False)
-#     fish_resampled = fish_df.index.resample(
-#         sample_bin).mean().dropna().reset_index(drop=False)
     # calculate the distance between previous and next resampled point => if
     # more than 10 m => gap
     gaps = distance(fish_resampled.dropna(), 'Fish_x_coord', 'Fish_y_coord',

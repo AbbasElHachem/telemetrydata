@@ -134,7 +134,8 @@ def resting_vs_moving(fish_df, sample_bin='5min', window=4,
     for i in resting_segments.index:
         fish_df.loc[segment_summary.loc[i].begin:segment_summary.loc[i].end,
                     'group'] = 0
-
+#     print(fish_df.columns)
+    fish_df.drop('Time', inplace=True, axis=1)
 #     fish_df = fish_df.reset_index(drop=False)
 #     fish_df = fish_df.set_index('Time', inplace=True)
     return fish_df  # , segments_df

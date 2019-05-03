@@ -107,7 +107,10 @@ def resting_vs_moving(fish_df, sample_bin='5min', window=4,
     # Begin and ends of segments form boundaries of final clusters
     keys_to_keep = segment_lengths[segment_lengths >= min_elements].keys()
     segments_list = [segments.get_group(key) for key in keys_to_keep]
-    segments_df = pd.concat(segments_list)
+#     try:
+#         segments_df = pd.concat(segments_list)
+#     except Exception as msg:
+#         print(msg)
 
     # Begin and ends of segments form boundaries of final clusters
     segment_summary = pd.DataFrame(index=keys_to_keep, columns=[
@@ -134,7 +137,7 @@ def resting_vs_moving(fish_df, sample_bin='5min', window=4,
 
 #     fish_df = fish_df.reset_index(drop=False)
 #     fish_df = fish_df.set_index('Time', inplace=True)
-    return fish_df, segments_df
+    return fish_df  # , segments_df
 
 # In[123]:
 
@@ -150,10 +153,10 @@ for fish_type in dfs_Type_dict.keys():
                                      sep=',', index_col=0,
                                      parse_dates=True)
 
-            fish_df, segments_df = resting_vs_moving(
+            fish_df = resting_vs_moving(
                 fish_df_in, sample_bin='5min', window=4,
                 distance_threshold=10, min_elements=5)
-
+# , segments_df
             if fish_type == '1_grayling':
                 fishladder_tracks = FL_tracks_grayling[
                     FL_tracks_grayling.ID == int(fish_id)]
@@ -166,7 +169,7 @@ for fish_type in dfs_Type_dict.keys():
                 if len(fish_df[pd.to_datetime(check_time) -
                                pd.Timedelta('10min'):check_time]) > 5:
                     print('Fishladder track ending at ' +
-                          str(check_time.round('1min')) + ' is in moving data.')
+                          str(check_time) + ' is in moving data.')
                     idx_wanted = fish_df[pd.to_datetime(check_time) -
                                          pd.Timedelta('10min'):check_time].index
                     if len(idx_wanted) > 0:
@@ -176,6 +179,8 @@ for fish_type in dfs_Type_dict.keys():
                              % (fish_file[:-4])))
         except Exception as msg:
             print(msg)
+            import pdb
+            pdb.set_trace()
             continue
 #         break
 #     break

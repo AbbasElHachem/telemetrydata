@@ -734,7 +734,6 @@ def plot_heatmapt_fish_loc(df_fish, fish_nbr, fish_type='',
                            plt_img=False, weights=None):
     ''' fct to plot heatmap of a fish '''
     from mpl_toolkits.axes_grid1 import make_axes_locatable
-    from matplotlib.ticker import FormatStrFormatter
 
     plt.rcParams['agg.path.chunksize'] = 10000
 

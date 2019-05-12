@@ -7,5 +7,5 @@ encoding/_05_plot_time_difference_between_measurements.py=utf-8
 encoding/_06_save_fish_data_per_period.py=utf-8
 encoding/_07_calculate_angle_between_fish_positions_.py=utf-8
 encoding/_08_aggregate_angles_velocity_per_grid_cell.py=utf-8
-encoding/_10_plot_3d_figures_behavior.py=utf-8
+encoding/_12_plot_3d_figures_behavior.py=utf-8
 encoding/filter_fish_data.py=utf-8

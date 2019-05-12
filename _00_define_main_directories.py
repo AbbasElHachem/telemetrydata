@@ -48,3 +48,10 @@ fish_shp_path = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
 river_shp_path = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
                   r'\complere_river_shp\Altusried_Mesh_Boundary.shp')
 # assert os.path.exists(river_shp_path)
+
+observed_flow_data = (r"C:\Users\hachem\Desktop\Work_with_Matthias_Schneider"
+                      r"\Flow data\q_summe_data_abbas.csv")
+
+simulated_flow_data = (r"C:\Users\hachem\Desktop\Work_with_Matthias_Schneider"
+                       r"\2019_01_18_GridsFromHydraulicModelForIne"
+                       r"Altusried_hydraulics_Grid1m Copy.csv")

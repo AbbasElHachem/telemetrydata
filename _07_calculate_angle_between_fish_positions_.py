@@ -2,16 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Calculate angle between consecutive fish positions
+Calculate the swim direction between each two successive fish locations
+Add the result to the dataframe, in a new column
 
-Parameters
-----------
-Filtered observed fish dataframe, incluiding longitude and latitude
-for point cordinates
-
-Returns
--------
-a dataframe with a column consindering the angle between each two positions
+fish_file[-10:-5] refers to the fish number (id) maybe need to change it
+depending on the file name
 """
 
 __author__ = "Abbas El Hachem"
@@ -20,17 +15,24 @@ __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
 # ===================================================
 
-from _00_define_main_directories import (dir_kmz_for_fish_names,
-                                         out_data_dir)
-from _02_filter_fish_data_based_on_HPE_Vel_RMSE import filtered_out_data
-from _01_filter_fish_points_keep_only_in_river import getFiles
-
 import os
 import timeit
 import time
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+                                         out_data_dir, img_loc)
+
+from _01_filter_fish_points_keep_only_in_river import getFiles
+from _02_filter_fish_data_based_on_HPE_Vel_RMSE import filtered_out_data
+from _03_plot_margingals_histograms_velocity_hpe_rmse import (plot_img,
+                                                              savefig,
+                                                              fontsize,
+                                                              labelsize)
+from _04_plot_heatmaps import rvb
 
 #==============================================================================
 # # def all directories and all required parameters
@@ -57,6 +59,33 @@ def calculate_angle_between_two_positions(df_fish, xname='Longitude',
     angles_degs.insert(0, np.nan)
     df_fish['fish_swim_direction_compared_to_x_axis'] = angles_degs
     return df_fish
+
+
+#==============================================================================
+#
+#==============================================================================
+
+def plot_angles_two_positions(lons, lats, angles, fish_type_nbr, out_plots_dir):
+    ''' fct to plot the angle between two consecutive locations'''
+    _, ax = plt.subplots(1, 1, figsize=(10, 8), dpi=800)
+    ax.quiver(lons, lats, np.cos(angles), np.sin(angles), cmap=rvb,
+              pivot='mid', width=0.00112, alpha=0.05,
+              scale=1. / .010505)
+
+    ax.scatter(lons, lats, color='b', s=0.5, alpha=0.05, marker=',')
+
+    plot_img(img_loc, ax)
+    ax.set_xlabel('Longitude', fontsize=fontsize)
+    ax.set_ylabel('Latitude', fontsize=fontsize)
+    ax.tick_params(axis='x', labelsize=labelsize)
+    ax.tick_params(axis='y', labelsize=labelsize)
+    ax.set_title('angles_vectors_fish: %s' % (fish_type_nbr),
+                 fontsize=fontsize, y=0.99)
+    savefig('%s_fish_%s' % ('angles_vectors_fish_', fish_type_nbr),
+            out_plots_dir)
+    plt.clf()
+    plt.close()
+    return
 
 
 #==============================================================================

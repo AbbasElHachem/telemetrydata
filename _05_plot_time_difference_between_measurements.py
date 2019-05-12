@@ -1,19 +1,15 @@
 # !/usr/bin/env python.
 # -*- coding: utf-8 -*-
 
-"""Gets and prints the spreadsheet's header columns
+"""
+Use this function to plot the time difference between each 
+two successive positions.
 
-Parameters
-----------
-file_loc : str
-    The file location of the spreadsheet
-print_cols : bool, optional
-    A flag used to print the columns to the console (default is False)
+This is done by transforming the time difference between each two positions
+to time epochs in seconds
 
-Returns
--------
-list
-    a list of strings representing the header columns
+Plot the values above 5s in a color and below 5s in another color
+Done to find if the time difference could be used as an additional parameter
 """
 
 __author__ = "Abbas El Hachem"
@@ -106,7 +102,7 @@ if __name__ == '__main__':
 
     print('**** Started on %s ****\n' % time.asctime())
     START = timeit.default_timer()  # to get the runtime of the program
-    # plot_loc_time_vls()
+    # plot_loc_time_vls()  # call function here
     STOP = timeit.default_timer()  # Ending time
     print(('\n****Done with everything on %s.\nTotal run time was'
            ' about %0.4f seconds ***' % (time.asctime(), STOP - START)))

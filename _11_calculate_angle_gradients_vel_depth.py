@@ -190,9 +190,9 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
     fish_flow_df = fish_flow_df[cols_new]
 
     df_name = os.path.join(out_plots_dir,
-                     r'fish_%s_with_flow_data_%s_angles'
-                     r'_and_max_gradients.npy'
-                     % (fish_nbr, flow_cat))
+                           r'fish_%s_with_flow_data_%s_angles'
+                           r'_and_max_gradients.npy'
+                           % (fish_nbr, flow_cat))
     np.save(open(df_name, 'w'), fish_flow_df.values)
     meta = fish_flow_df.index, fish_flow_df.columns
     s = pickle.dumps(meta)
@@ -214,83 +214,24 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
 
 if __name__ == '__main__':
 
-    # in_orig_stn_df = read_OrigStn_DF(orig_station_file)
-
-#    in_fish_files_dict = getFiles(main_data_dir, '.csv')  # fish_file[-9:-4]
-# in_fish_files_dict = getFiles(points_in_river, '.csv')  #
-# fish_file[-25:-20]
-
-#    in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\Filtered_data', '.csv')
-#    in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-#                                  r'\out_plots_abbas\df_fish_flow_combined_with_angles',
-#                                  '.csv')   #
     in_fish_files_dict = getFiles(r'C:\Users\Abbas\Desktop\Work_with_Matthias_Schneider'
                                   r'\out_plots_abbas\df_fish_flow_combined_with_angles',
                                   '.csv', dir_kmz_for_fish_names)
 
     out_plots_dir = r'C:\Users\Abbas\Desktop\Work_with_Matthias_Schneider\out_plots_abbas'
 
-    fish_nbrs = []
-    orig_data = []
-    rem_data = []
-    ratio_data = []
-
-#    plot_flow_fish_values(img_loc, 'Flow_Cat', [20, 30, 40], 'all')
-# for nbr in ['46858', '46859', '46860', '46861', '46841', '46842',
-# '46843']:
     for fish_type in in_fish_files_dict.keys():
-        # if fish_type == '2_barbel':  # fish_type == '3_chub' or
-            for fish_file in in_fish_files_dict[fish_type]:
-                print(fish_file)
-                # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
-                fish_nbr = fish_type + '_' + fish_file[-47:-42]
-                # raise Exception
-                # 'not_considered'  # fish_file[-11:-5]
-                flow_cat = fish_file[-11:-5]
 
-    #                 try:
-                #                 pass
-                try:
-                    d = calc_max_gradient_direct(fish_file, flow_cat, fish_nbr)
+        for fish_file in in_fish_files_dict[fish_type]:
+            print(fish_file)
 
-                except Exception as msg:
-                    print(msg)
-                    continue
-#                plot_difference_in_angle(d, fish_nbr, flow_cat,
-#                                         'Angle_swim_direction_and_max_depth_%s_gradient_difference'
-#                                         % str(flow_cat[-2:]))
-#                plot_difference_in_angle(d, fish_nbr, flow_cat,
- #                                        'Angle_swim_direction_and_max_velM_%s_gradient_difference'
- #                                        % str(flow_cat[-2:]))
-    #                raise Exception
-        #                        dd = compare_fish_and_flow_direction(fish_file,
-        #                                                             fish_nbr,
-        #                                                             flow_cat,
-        #                                                             True)
-        #                        vel_vls, angle_vls, grdx, grdy = aggregate_values_per_grid_cell(
-        #                            delta_x_y, 'Velocity', 'fish_angle')
-        #                        plot_agg_grid_vls(grdx, grdy, angle_vls, fish_nbr, 'fish_angle')
-        # #                        plot_agg_grid_vls(grdx, grdy, vel_vls, fish_nbr, 'Velocity')
-        #                find_diff_fish_and_flow_direction(fish_file, fish_nbr, flow_cat)
-#
-#                 except Exception as msg:
-#                     print(msg)
-#                     continue
-                # break
-            # break
+            fish_nbr = fish_type + '_' + fish_file[-47:-42]
 
-#            transform_variables_to_uniform_marginals(in_f,
-#                                                   'Velocity', 'velM_60')
-#
-#            df_fish_flow = save_cat_flow_data(flow_data_file,
-#                                              simulated_flow_file,
-#                                              delta_x_y,
-#                                              fish_nbr)
+            flow_cat = fish_file[-11:-5]
 
-#                plot_heatmapt_fish_loc(delta_x_y, fish_nbr,
-#                                        'using_HPE_RMSE_Vel_filters',
-#                                        plt_img=True)
+            try:
+                d = calc_max_gradient_direct(fish_file, flow_cat, fish_nbr)
 
-#    STOP = timeit.default_timer()  # Ending time
-#    print(('\n\a\a\a Done with everything on %s. Total run time was'
-#           ' about %0.4f seconds \a\a\a' % (time.asctime(), STOP - START)))
+            except Exception as msg:
+                print(msg)
+                continue

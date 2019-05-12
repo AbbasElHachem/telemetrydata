@@ -1,37 +1,45 @@
 # !/usr/bin/env python.
 # -*- coding: utf-8 -*-
 
-"""Gets and prints the spreadsheet's header columns
+"""
+Read the hydraulic model grid file
 
-Parameters
-----------
-file_loc : str
-    The file location of the spreadsheet
-print_cols : bool, optional
-    A flag used to print the columns to the console (default is False)
+Create a new grid in a way that nodes of first grid are center of second one
+For every cell find all values that fall with in the cell,
+Calculate the average fish velocity and fish swimming direction
+per grid cell (sum values/ sum of points) 
 
-Returns
--------
-list
-    a list of strings representing the header columns
+Plot the results:
+Every grid cell the average coordinates 
+Average fish velocity and angle value
 """
 
 __author__ = "Abbas El Hachem"
 __copyright__ = 'Institut fuer Wasser- und Umweltsystemmodellierung - IWS'
 __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
-# ===================================================
+# =============================================================================
+
+import timeit
+import time
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from matplotlib.ticker import FormatStrFormatter
 
 from _00_define_main_directories import asci_grd_file_1m_
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import (wgs82, utm32,
                                                         calculate_fish_velocity,
                                                         convert_coords_fr_wgs84_to_utm32_)
+
+from _03_plot_margingals_histograms_velocity_hpe_rmse import fontsize, labelsize
+from _03_plot_margingals_histograms_velocity_hpe_rmse import savefig
+from _03_plot_margingals_histograms_velocity_hpe_rmse import out_save_dir
+
+from _04_plot_heatmaps import rvb
 from _07_calculate_angle_between_fish_positions_ import calculate_angle_between_two_positions
-import os
-import timeit
-import time
-import numpy as np
-import pandas as pd
 
 #==============================================================================
 #
@@ -92,12 +100,67 @@ def aggregate_values_per_grid_cell(df_fish, asci_grd_file,
     angle_vls = mean_dir_grid[~np.isnan(mean_dir_grid)]
     return vel_vls, angle_vls, grdx, grdy
 
+#==============================================================================
+#
+#==============================================================================
 
+
+def plot_agg_grid_vls(grdx, grdy, var_vls, fish_nbr, var_name, out_plots_dir):
+    '''
+        a function to plot average velocity or angle per grid cell
+    '''
+    fig, ax0 = plt.subplots(1, 1, figsize=(20, 10), dpi=100)
+    if var_name == 'Velocity':
+        vmin, vmax, unit, extend = 0, 1.51, 'm/s', 'neither'
+        ticks = [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
+
+    if var_name == 'fish_angle':
+        vmin, vmax, unit, extend = -180, 180, 'deg', 'neither'
+        ticks = [-180, -135, -90, -45, 0, 45, 90, 135, 180]
+    try:
+        im = ax0.scatter(grdx, grdy, c=var_vls, s=.75, cmap=rvb, marker=',',
+                         vmin=vmin, vmax=vmax, alpha=0.95)
+    except ValueError:
+        print('adjusting shapes')
+        if grdx.shape[0] > var_vls.shape[0]:
+            grdx = grdx[1:]
+            grdy = grdy[1:]
+        if var_vls.shape[0] > grdx.shape[0]:
+            var_vls = var_vls[1:]
+        im = ax0.scatter(grdx, grdy, c=var_vls, s=0.75, cmap=rvb, marker='s',
+                         vmin=vmin, vmax=vmax, alpha=0.95)
+
+    cbar = fig.colorbar(im, ax=ax0, extend=extend, fraction=0.024, pad=0.02,
+                        ticks=ticks, boundaries=ticks, aspect=30)
+    cbar.ax.set_ylabel('Mean %s %s' % (var_name, unit), fontsize=fontsize)
+    cbar.ax.tick_params(labelsize=10)
+    ax0.set_title('mean_%s_per_grid_cell_%s' % (var_name, fish_nbr),
+                  fontsize=fontsize)
+    ax0.set_xlim([10.222, 10.228]), ax0.set_ylim([47.8175, 47.8205])
+    ax0.set_xticks([10.222, 10.223, 10.224, 10.225, 10.226, 10.227, 10.228])
+    ax0.set_yticks([47.8175, 47.8180, 47.8185, 47.8190, 47.8195,
+                    47.8200, 47.8205])
+    ax0.set_xlabel('Longitude', fontsize=fontsize)
+    ax0.set_ylabel('Latitude', fontsize=fontsize)
+    ax0.tick_params(axis='x', labelsize=labelsize)
+    ax0.tick_params(axis='y', labelsize=labelsize)
+
+    ax0.xaxis.set_major_formatter(FormatStrFormatter('%.4f'))
+    ax0.yaxis.set_major_formatter(FormatStrFormatter('%.3f'))
+    savefig('mean_%s_per_grid_cell_%s' % (var_name, fish_nbr),
+            out_plots_dir)
+    plt.close(fig)
+    pass
+
+
+# =============================================================================
+#
+# =============================================================================
 if __name__ == '__main__':
 
     print('**** Started on %s ****\n' % time.asctime())
     START = timeit.default_timer()  # to get the runtime of the program
-
+    # call function here
     STOP = timeit.default_timer()  # Ending time
     print(('\n****Done with everything on %s.\nTotal run time was'
            ' about %0.4f seconds ***' % (time.asctime(), STOP - START)))

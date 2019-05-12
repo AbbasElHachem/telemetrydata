@@ -168,7 +168,7 @@ def plot_heatmapt_fish_loc(df_fish, fish_type_nbr,
     ticks = np.linspace(0, max_tick + 0.2, 7, endpoint=True)
 
     norm = mcolors.BoundaryNorm(ticks, cmap_to_use.N)
-    ax_legend = fig.add_axes([0.4025, 0.20525, 0.5, 0.0125], zorder=3)
+    ax_legend = fig.add_axes([0.2525, 0.180525, 0.5, 0.0125], zorder=3)
     cb = mpl.colorbar.ColorbarBase(ax_legend, ticks=ticks,  # extend='none',
                                    boundaries=ticks, norm=norm,
                                    cmap=cmap_to_use,
@@ -213,8 +213,8 @@ if __name__ == '__main__':
                                        weights=None)
             except Exception:
                 raise Exception
-            break
-        break
+#             break
+#         break
     STOP = timeit.default_timer()  # Ending time
     print(('\n****Done with everything on %s.\nTotal run time was'
            ' about %0.4f seconds ***' % (time.asctime(), STOP - START)))

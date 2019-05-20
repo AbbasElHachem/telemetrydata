@@ -13,14 +13,6 @@ __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
 from matplotlib.ticker import FormatStrFormatter
 
-from _00_define_main_directories import (dir_kmz_for_fish_names,
-                                         out_data_dir,
-                                         img_loc)
-from _01_filter_fish_points_keep_only_in_river import getFiles
-from _02_filter_fish_data_based_on_HPE_Vel_RMSE import filtered_out_data
-from _03_plot_margingals_histograms_velocity_hpe_rmse import savefig, plot_img
-
-
 import matplotlib as mpl
 import os
 import timeit
@@ -30,6 +22,18 @@ import matplotlib.colors as mcolors
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from _00_define_main_directories import (dir_kmz_for_fish_names,
+                                         out_data_dir,
+                                         img_loc)
+from _01_filter_fish_points_keep_only_in_river import getFiles
+from _02_filter_fish_data_based_on_HPE_Vel_RMSE import filtered_out_data
+from _03_plot_margingals_histograms_velocity_hpe_rmse import savefig, plot_img
+
+plt.rcParams.update({'font.size': 12})
+plt.rcParams.update({'axes.labelsize': 14})
+mpl.rcParams['xtick.labelsize'] = 10
+mpl.rcParams['ytick.labelsize'] = 10
 
 #==============================================================================
 # # def all directories and all required parameters
@@ -45,7 +49,7 @@ extent = [10.2210163765499988, 10.2303021853499985,
           47.8146222938500003, 47.8224152275500032]
 
 # def font- and labelsize for plots
-fontsize, labelsize = 10, 8
+fontsize, labelsize = 14, 12
 
 #==============================================================================
 #
@@ -121,7 +125,7 @@ def plot_heatmapt_fish_loc(df_fish, fish_type_nbr,
     y = df_fish['Latitude'].values
     fig, (ax1, ax2) = plt.subplots(
         1, 2, sharey=True, sharex=True,
-        figsize=(20, 12), dpi=400)
+        figsize=(20, 20), dpi=400)
 
     if plt_img:
         plot_img(img_loc, ax1), plot_img(img_loc, ax2)
@@ -133,12 +137,12 @@ def plot_heatmapt_fish_loc(df_fish, fish_type_nbr,
 
     plt.subplots_adjust(wspace=0.05, hspace=0.15)
 
-    ax1.tick_params(axis='x', labelsize=7)
-    ax1.tick_params(axis='y', labelsize=7)
+#     ax1.tick_params(axis='x', labelsize=7)
+#     ax1.tick_params(axis='y', labelsize=7)
     ax1.grid(alpha=0.1)
 
-    ax2.tick_params(axis='x', labelsize=7)
-    ax2.tick_params(axis='y', labelsize=7)
+#     ax2.tick_params(axis='x', labelsize=7)
+#     ax2.tick_params(axis='y', labelsize=7)
 
     ax2.grid(alpha=0.1)
     ax1.scatter(x, y, c='darkblue', s=0.15,
@@ -168,16 +172,17 @@ def plot_heatmapt_fish_loc(df_fish, fish_type_nbr,
     ticks = np.linspace(0, max_tick + 0.2, 7, endpoint=True)
 
     norm = mcolors.BoundaryNorm(ticks, cmap_to_use.N)
-    ax_legend = fig.add_axes([0.2525, 0.180525, 0.5, 0.0125], zorder=3)
+    ax_legend = fig.add_axes([0.2525, 0.30525, 0.5, 0.0105], zorder=1)
     cb = mpl.colorbar.ColorbarBase(ax_legend, ticks=ticks,  # extend='none',
                                    boundaries=ticks, norm=norm,
                                    cmap=cmap_to_use,
                                    orientation='horizontal')
-    cb.set_label('Log Histogram Lon-Latt', fontsize=labelsize)
+    cb.set_label('Log Histogram Lon-Latt')  # , fontsize=labelsize)
     cb.draw_all()
     cb.set_alpha(1)
-
-    savefig('heatmap_fish_%s_' % (fish_type_nbr),
+#     ax1.set_aspect(1.0)
+#     ax2.set_aspect(1.)
+    savefig('heatmap_fish_%s_2' % (fish_type_nbr),
             out_plots_dir)
     plt.close()
 

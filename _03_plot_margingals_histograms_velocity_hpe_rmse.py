@@ -89,7 +89,7 @@ def savefig(fig_name, out_dir):
 #==============================================================================
 
 
-def plot_img(img_loc, ax, img_transparancy=0.5):
+def plot_img(img_loc, ax, img_transparancy=0.0):
     ''' fct to plot orginal river image
     img_loc :path to the Ortho image
     ax: matplotib suplot for plotting the image

@@ -12,6 +12,21 @@ Institut fuer Wasser- und Umweltsystemmodellierung - IWS
 
 from __future__ import division
 
+
+import os
+import time
+import timeit
+
+
+import matplotlib as mpl
+import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import shapefile
+
+from matplotlib.ticker import FormatStrFormatter
+from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.ticker import LinearLocator
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import rc
@@ -25,19 +40,7 @@ from _00_define_main_directories import (dir_kmz_for_fish_names,
 from _01_filter_fish_points_keep_only_in_river import getFiles
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import convert_coords_fr_wgs84_to_utm32_
 from _02_filter_fish_data_based_on_HPE_Vel_RMSE import wgs82, utm32
-import os
-import time
-import timeit
 
-from matplotlib.ticker import FormatStrFormatter
-from mpl_toolkits.mplot3d import Axes3D
-
-import matplotlib as mpl
-import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import shapefile
 plt.ioff()
 # get_ipython().run_line_magic('matplotlib', 'inline')
 
@@ -52,7 +55,7 @@ rcParams['axes.labelpad'] = 35
 def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                                     fishshp, rivershp, out_save_dir):
 
-    fig = plt.figure(figsize=(40, 20), dpi=75)
+    fig = plt.figure(figsize=(40, 20), dpi=100)
     # fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
     # ax = fig.gca(projection='3d')
     ax = fig.add_subplot(111, projection='3d')
@@ -147,7 +150,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     plt.savefig(os.path.join(out_save_dir,
                              '3d_%s_%s_%s.png'
                              % (fish_nbr, flow_cat,
-                                'Time_of_day_h')))
+                                'Time_of_day_h2')))
     plt.close()
     return
 
@@ -378,46 +381,46 @@ if __name__ == '__main__':
     START = timeit.default_timer()
     print('Program started at: ', time.asctime())
 
-#    in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\Filtered_data',
+#     in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\Filtered_data',
 # '.csv')
-    fish_file = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\df_fish_flow_combined_with_angles\fish_barbel_46838_with_flow_data_10_and_angles_and_behaviour.ft'
-    fish_nbr = 'barbel_46838'
-    flow_cat = '10'
+#     fish_file = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\df_fish_flow_combined_with_angles\fish_barbel_46838_with_flow_data_10_and_angles_and_behaviour.ft'
+#     fish_nbr = 'barbel_46838'
+#     flow_cat = '10'
 
-    plot_3d_plot_group_as_color(fish_file,
-                                fish_nbr,
-                                flow_cat,
-                                fish_shp_path,
-                                river_shp_path,
-                                out_data_dir)
-#     in_fish_files_dict = getFiles(
-#         r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-#         r'\out_plots_abbas\df_fish_flow_combined_with_angles',
-#         '.csv', dir_kmz_for_fish_names)  #
-#
-#     for fish_type in in_fish_files_dict.keys():
-#         for fish_file in in_fish_files_dict[fish_type]:
-#             print(fish_file)
-#
-#             fish_nbr = fish_type + fish_file[-47:-42]
+#     plot_3d_plot_group_as_color(fish_file,
+#                                 fish_nbr,
+#                                 flow_cat,
+#                                 fish_shp_path,
+#                                 river_shp_path,
+#                                 out_data_dir)
+    in_fish_files_dict = getFiles(
+        r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
+        r'\out_plots_abbas\df_fish_flow_combined_with_angles',
+        '.csv', dir_kmz_for_fish_names)  #
+
+    for fish_type in in_fish_files_dict.keys():
+        for fish_file in in_fish_files_dict[fish_type]:
+            print(fish_file)
+
+            fish_nbr = fish_type + fish_file[-47:-42]
 #             # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
-#             flow_cat = fish_file[-11:-5]
+            flow_cat = fish_file[-11:-5]
 #             # 'not_considered'  # fish_file[-11:-5]
 #
-#             try:
-#                 plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
-#                                                 fish_shp_path, river_shp_path,
-#                                                 out_data_dir)
-#
+            try:
+                plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
+                                                fish_shp_path, river_shp_path,
+                                                out_data_dir)
+            #
 #                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
 #                                            fish_shp_path, river_shp_path,
 #                                            out_data_dir)
 #
-#             except Exception as msg:
-#                 print(msg)
-#                 continue
-#             break
-#         break
+            except Exception as msg:
+                print(msg)
+                continue
+            break
+        break
     END = timeit.default_timer()
 
     print('Program ended at: ', time.asctime(),

@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding/_00_define_main_directories.py=utf-8
 encoding/_01_filter_fish_points_keep_only_in_river.py=utf-8
 encoding/_02_filter_fish_data_based_on_HPE_Vel_RMSE.py=utf-8
 encoding/_03_plot_margingals_histograms_velocity_hpe_rmse.py=utf-8

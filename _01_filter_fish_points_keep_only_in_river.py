@@ -1,10 +1,19 @@
+# !/usr/bin/env python.
 # -*- coding: utf-8 -*-
-"""
-Created on 15-01-2019
 
-@author: EL Hachem Abbas,
-Institut fuer Wasser- und Umweltsystemmodellierung - IWS
 """
+Read the original observed fish positions
+Read a shapefile of the water body
+Intersect the fish positions with the river shapefile
+
+Save the output to new dataframes
+"""
+
+__author__ = "Abbas El Hachem"
+__copyright__ = 'Institut fuer Wasser- und Umweltsystemmodellierung - IWS'
+__email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
+
+# =============================================================================
 from __future__ import division
 
 from _00_define_main_directories import (dir_kmz_for_fish_names,
@@ -52,7 +61,8 @@ def getFiles(data_dir_, file_ext_str, dir_kmz_for_fish_names):
     def get_file_names_per_fish_name(dir_fish_names_files):
         '''function to get all file names related to each fish '''
         fish_names = [name for name in os.listdir(dir_fish_names_files)
-                      if os.path.isdir(os.path.join(dir_fish_names_files, name))]
+                      if os.path.isdir(os.path.join(dir_fish_names_files,
+                                                    name))]
         dict_fish = {k: [] for k in fish_names}
         for ix, key_ in enumerate(dict_fish.keys()):
             files_per_fish = os.listdir(os.path.join(
@@ -75,9 +85,9 @@ def getFiles(data_dir_, file_ext_str, dir_kmz_for_fish_names):
                     dict_files_per_fish[k].append(f)
     return dict_files_per_fish
 
-#==============================================================================
+# =============================================================================
 #
-#==============================================================================
+# =============================================================================
 
 
 def read_OrigStn_DF(df_stn_orig_file):

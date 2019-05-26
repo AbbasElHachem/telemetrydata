@@ -1,8 +1,20 @@
-'''
-Created on 18.04.2019
+# !/usr/bin/env python.
+# -*- coding: utf-8 -*-
 
-@author: Abbas
-'''
+"""
+In this script all the different Path to the data
+and output directories are defined.
+These are later imported in the corresponding scripts
+
+For the code to run directories are to be defined at first
+
+"""
+
+__author__ = "Abbas El Hachem"
+__copyright__ = 'Institut fuer Wasser- und Umweltsystemmodellierung - IWS'
+__email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
+
+# =============================================================================
 
 import os
 

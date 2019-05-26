@@ -1,12 +1,23 @@
-#!/usr/bin/env python
-# coding: utf-8
+# !/usr/bin/env python.
+# -*- coding: utf-8 -*-
 
 """
-Created on 15-01-2019
+Read the intersected fish-river data
 
-@author: EL Hachem Abbas,
-Institut fuer Wasser- und Umweltsystemmodellierung - IWS
+Filter the data based on the HPE-RMSE simultaneous
+thresholds derived from the statistics done to keep
+90% of the data with an approximate error of 1m
+
+Calculate Velocities between consecutive Fish positions
+and remove all first positions of velocities above 1.5 m/s
+
 """
+
+__author__ = "Abbas El Hachem"
+__copyright__ = 'Institut fuer Wasser- und Umweltsystemmodellierung - IWS'
+__email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
+
+# =============================================================================
 from __future__ import division
 
 from _00_define_main_directories import (dir_kmz_for_fish_names,

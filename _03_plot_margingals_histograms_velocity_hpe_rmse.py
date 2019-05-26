@@ -1,12 +1,17 @@
-#!/usr/bin/env python
-# coding: utf-8
+# !/usr/bin/env python.
+# -*- coding: utf-8 -*-
 
 """
-Created on 15-03-2019
-
-@author: EL Hachem Abbas,
-Institut fuer Wasser- und Umweltsystemmodellierung - IWS
+Read either the original dataframes or the
+the filtered ones (intersected and HPE-RMSE-Velocity filters)
+Plot histograms, and pure marginal distributions, inspect the distributions
 """
+
+__author__ = "Abbas El Hachem"
+__copyright__ = 'Institut fuer Wasser- und Umweltsystemmodellierung - IWS'
+__email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
+
+# =============================================================================
 from __future__ import division
 from _00_define_main_directories import (dir_kmz_for_fish_names,
                                          orig_station_file,

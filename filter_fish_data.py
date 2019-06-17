@@ -12,6 +12,8 @@ import os
 import time
 import timeit
 
+import datetime
+
 from PIL import Image
 from matplotlib import style
 from matplotlib.ticker import FormatStrFormatter
@@ -46,15 +48,15 @@ Image.MAX_IMAGE_PIXELS = 1000000000
 print('\a\a\a\a Started on %s \a\a\a\a\n' % time.asctime())
 START = timeit.default_timer()  # to get the runtime of the program
 
-dir_kmz_for_fish_names = (r'E:\Work_with_Matthias_Schneider'
+dir_kmz_for_fish_names = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
                           r'\2018_11_26_tracks_fish_vemco\kmz')
 assert os.path.exists(dir_kmz_for_fish_names)
 
-orig_station_file = (r'E:\Work_with_Matthias_Schneider'
+orig_station_file = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
                      r'\2018_11_26_tracks_fish_vemco\stations.csv')
 assert os.path.exists(orig_station_file)
 
-main_data_dir = r'E:\Work_with_Matthias_Schneider\2018_11_26_tracks_fish_vemco'
+main_data_dir = r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\2018_11_26_tracks_fish_vemco'
 assert os.path.exists(main_data_dir)
 os.chdir(main_data_dir)
 
@@ -63,12 +65,15 @@ out_plots_dir = (r'C:\Users\hachem\Desktop'
                  r'\Work_with_Matthias_Schneider\out_plots_abbas')
 assert os.path.exists(out_plots_dir)
 
-img_loc = r'E:\Work_with_Matthias_Schneider\GIS\orthoAll_small.jpg'
-assert os.path.exists(img_loc)
-
-shp_path = (r'E:\Work_with_Matthias_Schneider'
-            r'\QGis_abbas\wanted_river_section.shp')
-assert os.path.exists(shp_path)
+# img_loc = r'E:\Work_with_Matthias_Schneider\GIS\orthoAll_small.jpg'
+# assert os.path.exists(img_loc)
+#
+# shp_path = (r'E:\Work_with_Matthias_Schneider'
+#             r'\QGis_abbas\wanted_river_section.shp')
+# assert os.path.exists(shp_path)
+# TODO Fix Path
+img_loc = ''
+shp_path = ''
 
 fish_shp_path = (r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
                  r'\QGis_abbas\fish_pass.shp')
@@ -1366,44 +1371,9 @@ def plot_difference_in_angle(in_df_fish_flow, fish_type_nbr, flow_cat,
 # =============================================================================
 
 
-from scipy.spatial import distance
-
-
-def find_distances(pointPx, pointPy, df):
-    # find distance from point P to all surroudning points
-    df['distances'] = np.sqrt(np.square((df['X_of_grid_node'].values - pointPx) +
-                                        (df['Y_of_grid_node'].values - pointPy)))
-    return df
-
-
-def closest_node(node, nodes):
-    return distance.cdist([node], nodes, 'euclidean')
-
-
-def get_surrounding_nodes(x_center, y_center, xall, yall):
-    right_point = (x_center + 1, y_center)
-    upper_point = (x_center, y_center + 1)
-    left_point = (x_center - 1, y_center)
-    bottom_point = (x_center, y_center - 1)
-
-    surrounding_nodes_coords = [right_point, upper_point,
-                                left_point, bottom_point]
-    xoords_wanted = [surrounding_nodes_coords[i][0]
-                     for i in range(len(surrounding_nodes_coords))
-                     if surrounding_nodes_coords[i][0] in xall]
-    yoords_wanted = [surrounding_nodes_coords[i][1]
-                     for i in range(len(surrounding_nodes_coords))
-                     if surrounding_nodes_coords[i][1] in yall]
-    return (xoords_wanted, yoords_wanted, surrounding_nodes_coords)
-#==============================================================================
-#
-#==============================================================================
-
-
-from sklearn.neighbors import NearestNeighbors
-
-
-def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
+def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
+                             timedelta=10,
+                             distance_thr=3):
     '''
     a function used to calculate between every position
     and closest 4 positions the difference in the
@@ -1415,99 +1385,144 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
     '''
     fish_flow_df = pd.read_csv(fish_flow_file, sep=',', index_col=0,
                                parse_dates=True, engine='c')
+
     flow_val = flow_cat[-2:]
     depth_var = 'depth_%s' % flow_val
     flow_var = 'velM_%s' % flow_val
 
-#     fish_flow_df_all = pd.read_feather(fish_flow_file, use_threads=4)
-#     fish_flow_df_all.set_index('Time', inplace=True)
-
-    # split df into 10 parts
-#     dfs_list = np.array_split(fish_flow_df_all, 10)
-#     dfs_all_end = []
-
-#     for fish_flow_df in dfs_list:
-    x_grid = fish_flow_df.X_of_grid_node.values.ravel()
-    y_grid = fish_flow_df.Y_of_grid_node.values.ravel()
+#     x_grid = fish_flow_df.X_of_grid_node.values.ravel()
+#     y_grid = fish_flow_df.Y_of_grid_node.values.ravel()
 
     print('calculting for', fish_flow_file)
 
-#             points_tree1 = spatial.cKDTree(
-#                 np.c_[nodes_coords1], compact_nodes=False)
+    for ix in fish_flow_df.index:
+        print(ix)
+        ix_before = ix - pd.Timedelta(minutes=timedelta)
+        ix_after = ix + pd.Timedelta(minutes=timedelta)
 
-#     print('done constructing tree')
-    for ix, x0, y0 in zip(fish_flow_df.index, x_grid, y_grid):
-        print(ix, x0, y0)
+        df_between = fish_flow_df.loc[ix_before:ix_after, :]
+
+        x_grid_between = df_between.loc[:, 'X_of_grid_node']
+        y_grid_between = df_between.loc[:, 'Y_of_grid_node']
+
+        take_idxs = np.ones(x_grid_between.size, dtype=bool)
+        for i in range(x_grid_between.size):
+
+            if not take_idxs[i]:
+                continue
+
+            x_dists = (x_grid_between[i] - x_grid_between)**2
+            y_dists = (y_grid_between[i] - y_grid_between)**2
+
+            dists = (x_dists + y_dists)**0.5
+
+            equal_dist_idxs = np.where((dists < 5e-1))[0]
+
+            take_idxs[equal_dist_idxs[1:]] = False
+
+        x_grid_between_unique = x_grid_between[take_idxs]
+        y_grid_between_unique = y_grid_between[take_idxs]
+
+        #======================================================================
+        x0 = fish_flow_df.loc[ix, 'X_of_grid_node']
+        y0 = fish_flow_df.loc[ix, 'Y_of_grid_node']
+
+        x_dists = (x0 - x_grid_between_unique)**2
+        y_dists = (y0 - y_grid_between_unique)**2
+
+        dists = (x_dists + y_dists)**0.5
+        dists = dists[dists <= distance_thr]
+        nrsts_idxs = np.argsort(dists)[:5]
+
+        x_nebors = x_grid_between[nrsts_idxs]
+        y_nebors = y_grid_between[nrsts_idxs]
+
+        #======================================================================
 
         depth_point0 = fish_flow_df.loc[ix, depth_var]
         flow_vel_point0 = fish_flow_df.loc[ix, flow_var]
-#         plt.scatter(x_grid, y_grid, c='b')
-#         plt.scatter(x0, y0, c='r')
-#         plt.show()
-        df_with_distances = find_distances(x0, y0, fish_flow_df)
-        try:
-            df_to_use = df_with_distances[(0 < df_with_distances.distances) &
-                                          (df_with_distances.distances <= .999)]
-            xnear = df_to_use.X_of_grid_node.values.ravel()
-            ynear = df_to_use.Y_of_grid_node.values.ravel()
-            nodes_coords1 = np.array([(x, y) for x, y in zip(xnear, ynear)])
-            neigh = NearestNeighbors(n_neighbors=4)
-    #         neigh = NearestNeighbors(radius=0.998)
-            nbrs = neigh.fit(nodes_coords1)
-            distances, indices = nbrs.kneighbors([[x0, y0]])
-            indices = indices[0]
-#         distances, indices = nbrs.radius_neighbors([[x0, y0]])
 
-#             xss = []
-#             yss = []
-#             for idc in indices[0]:
-#                 xs = fish_flow_df.iloc[idc, :]['X_of_grid_node']
-#                 ys = fish_flow_df.iloc[idc, :]['Y_of_grid_node']
-#                 xss.append(xs)
-#                 yss.append(ys)
-#             plt.scatter(x0, y0, c='r')
-#             plt.scatter(xss, yss, c='b', marker='.')
-#             plt.show()
+        plt.ioff()
+        plt.scatter(x_nebors, y_nebors, c='g', alpha=0.75)
+#         plt.scatter(x_fish, y_fish, c='orange', alpha=0.5)
+        plt.scatter(x0, y0, c='r', alpha=0.5)
 
-            diff_in_grds_lst, diff_in_vel_lst = [], []
-            for idc in indices:
-                point_i_depth = fish_flow_df.iloc[idc, :][depth_var]
-                point_i_flow_mag = fish_flow_df.iloc[idc, :][flow_var]
+        diff_in_grds_lst, diff_in_vel_lst = [], []
+        for xnear, ynear in zip(x_nebors, y_nebors):
+            df_xynear = df_between[
+                (df_between.loc[:, 'X_of_grid_node'] == xnear) &
+                (df_between.loc[:, 'Y_of_grid_node'] == ynear)]
 
-                diff_in_grds_lst.append(
-                    np.abs(depth_point0 - point_i_depth))
-                diff_in_vel_lst.append(
-                    np.abs(flow_vel_point0 - point_i_flow_mag))
+            point_i_depth = df_xynear.loc[:, depth_var].values
+            point_i_flow_mag = df_xynear.loc[:, flow_var].values
 
-            (_, depth_point_id) = (np.max(diff_in_grds_lst),
-                                   indices[np.argmax(diff_in_grds_lst)])
-            (_, vel_point_id) = (np.max(diff_in_vel_lst),
-                                 indices[np.argmax(diff_in_vel_lst)])
+            diff_in_grds_lst.append(
+                np.abs(depth_point0 - point_i_depth))
+            diff_in_vel_lst.append(
+                np.abs(flow_vel_point0 - point_i_flow_mag))
 
-            (x_d, y_d) = (fish_flow_df.iloc[depth_point_id, :].x_fish,
-                          fish_flow_df.iloc[depth_point_id, :].y_fish)
-            (x_v, y_v) = (fish_flow_df.iloc[vel_point_id, :].x_fish,
-                          fish_flow_df.iloc[vel_point_id, :].y_fish)
+        diff_in_grds_lst_unique = [np.unique(arr) for arr in diff_in_grds_lst]
+        diff_in_vel_lst_unique = [np.unique(arr) for arr in diff_in_vel_lst]
 
-            angle_fish_max_depth_grd = np.math.degrees(
-                np.math.atan2((y_d - y0), (x_d - x0)))
-            angle_fish_max_vel_grd = np.math.degrees(
-                np.math.atan2((y_v - y0), (x_v - x0)))
+        (_, depth_point_id) = (
+            np.max(diff_in_grds_lst_unique),
+            nrsts_idxs[np.argmax(diff_in_grds_lst_unique)])
 
-            fish_flow_df.loc[ix,
-                             'Angle_swim_direction_and_max_%s_gradient_difference'
-                             % depth_var] = angle_fish_max_depth_grd
-            fish_flow_df.loc[ix,
-                             'Angle_swim_direction_and_max_%s_gradient_difference'
-                             % flow_var] = angle_fish_max_vel_grd
-        except Exception as msg:
-            print('No nearest neigbours found assigning nans', msg)
-            fish_flow_df.loc[ix,
-                             'Angle_swim_direction_and_max_%s_gradient_difference'
-                             % depth_var] = np.nan
-            fish_flow_df.loc[ix,
-                             'Angle_swim_direction_and_max_%s_gradient_difference'
-                             % flow_var] = np.nan
+        (_, vel_point_id) = (
+            np.max(diff_in_vel_lst_unique),
+            nrsts_idxs[np.argmax(diff_in_vel_lst_unique)])
+
+        (x_d, y_d) = (df_between.iloc[depth_point_id, :].X_of_grid_node,
+                      df_between.iloc[depth_point_id, :].Y_of_grid_node)
+        (x_v, y_v) = (df_between.iloc[vel_point_id, :].X_of_grid_node,
+                      df_between.iloc[vel_point_id, :].Y_of_grid_node)
+
+        plt.scatter(x_d, y_d, c='darkblue')
+        plt.scatter(x_v, y_v, c='orange')
+
+        direction_max_depth_grd = np.math.degrees(
+            np.math.atan2((y_d - y0), (x_d - x0)))
+        direction_max_vel_grd = np.math.degrees(
+            np.math.atan2((y_v - y0), (x_v - x0)))
+
+        fish_flow_df.loc[ix,
+                         'X_coords_grid_with_max_%s_gradient_diff'
+                         % depth_var] = x_d
+
+        fish_flow_df.loc[ix,
+                         'Y_coords_grid_with_max_%s_gradient_diff'
+                         % depth_var] = y_d
+
+        fish_flow_df.loc[ix,
+                         'X_coords_grid_with_max_%s_gradient_diff'
+                         % flow_var] = x_v
+
+        fish_flow_df.loc[ix,
+                         'Y_coords_grid_with_max_%s_gradient_diff'
+                         % flow_var] = y_v
+
+        fish_flow_df.loc[ix,
+                         'Direction_max_%s_gradient_compared_to_x_axis'
+                         % depth_var] = direction_max_depth_grd
+        fish_flow_df.loc[ix,
+                         'Direction_max_%s_gradient_compared_to_x_axis'
+                         % flow_var] = direction_max_vel_grd
+
+        diff_fish_max_depth_grd = np.mod(
+            fish_flow_df.loc[ix, 'fish_angle'] -
+            direction_max_depth_grd + 180, 360) - 180
+
+        diff_fish_max_vel_grd = np.mod(
+            fish_flow_df.loc[ix, 'fish_angle'] -
+            direction_max_vel_grd + 180, 360) - 180
+
+        fish_flow_df.loc[ix,
+                         'Angle_between_swim_and_max_%s_gradient_direction'
+                         % depth_var] = diff_fish_max_depth_grd
+        fish_flow_df.loc[ix,
+                         'Angle_between_swim_and_max_%s_gradient_direction'
+                         % flow_var] = diff_fish_max_vel_grd
+
     print('saving df')
     fish_flow_df.rename(
         columns={'Velocity': 'Fish_swim_velocity_m_per_s',
@@ -1548,7 +1563,7 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
     fish_flow_df_final.to_csv(
         os.path.join(out_plots_dir,
                      r'fish_%s_with_flow_data_%s_angles'
-                     r'_and_max_gradients.csv'
+                     r'_and_max_gradients_new.csv'
                      % (fish_nbr, flow_cat)))  # , compression='gzip')
 
     return fish_flow_df_final
@@ -1610,12 +1625,12 @@ if __name__ == '__main__':
                             fish_file, flow_cat, fish_nbr)
                 # print(d)
     #                 raise Exception
-                        plot_difference_in_angle(d, fish_nbr, flow_cat,
-                                                 'Angle_swim_direction_and_max_depth_%s_gradient_difference'
-                                                 % str(flow_cat[-2:]))
-                        plot_difference_in_angle(d, fish_nbr, flow_cat,
-                                                 'Angle_swim_direction_and_max_velM_%s_gradient_difference'
-                                                 % str(flow_cat[-2:]))
+#                         plot_difference_in_angle(d, fish_nbr, flow_cat,
+#                                                  'Angle_swim_direction_and_max_depth_%s_gradient_difference'
+#                                                  % str(flow_cat[-2:]))
+#                         plot_difference_in_angle(d, fish_nbr, flow_cat,
+#                                                  'Angle_swim_direction_and_max_velM_%s_gradient_difference'
+#                                                  % str(flow_cat[-2:]))
                     except Exception as msg:
                         print(msg)
                         continue

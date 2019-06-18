@@ -1540,10 +1540,10 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
                                  % flow_var] = y_v
 
                 fish_flow_df.loc[ix,
-                                 'Direction_max_%s_gradient_compared_to_x_axis'
+                                 'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
                                  % depth_var] = direction_max_depth_grd
                 fish_flow_df.loc[ix,
-                                 'Direction_max_%s_gradient_compared_to_x_axis'
+                                 'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
                                  % flow_var] = direction_max_vel_grd
 
                 diff_fish_max_depth_grd = np.mod(

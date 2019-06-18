@@ -1672,35 +1672,43 @@ if __name__ == '__main__':
     rem_data = []
     ratio_data = []
 
-#    plot_flow_fish_values(img_loc, 'Flow_Cat', [20, 30, 40], 'all')
     for fish_type in in_fish_files_dict.keys():
-        if fish_type == '1_grayling':
-            for fish_file in in_fish_files_dict[fish_type]:
-                #             print(fish_file)
-                #             print(fish_file)
+        #         if fish_type == '1_grayling':
+        for fish_file in in_fish_files_dict[fish_type]:
+
                 # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
-                fish_nbr = fish_type + '_' + \
-                    fish_file[-47:-42]  # fish_file[-41:-36]
+            fish_nbr = fish_type + '_' + \
+                fish_file[-47:-42]  # fish_file[-41:-36]
 
 #                 if fish_nbr == '2_barbel_46861':
-                if fish_nbr == '1_grayling_46865':
-                    flow_cat = fish_file[-11:-5]  # fish_file[-20:-14]  #
-                    if flow_cat == 'cat_60':
-                        try:
-                            print(fish_file)
-                            d = calc_max_gradient_direct(
-                                fish_file, flow_cat, fish_nbr)
-                            print(d)
-            #                 raise Exception
-                            plot_difference_in_angle(d, fish_nbr, flow_cat,
-                                                     'Angle_between_swim_and_max_depth_%s_gradient_direction'
-                                                     % str(flow_cat[-2:]))
-                            plot_difference_in_angle(d, fish_nbr, flow_cat,
-                                                     'Angle_between_swim_and_max_velM_%s_gradient_direction'
-                                                     % str(flow_cat[-2:]))
-                        except Exception as msg:
-                            print(msg)
-                            continue
+#                 if fish_nbr == '1_grayling_46865':
+            flow_cat = fish_file[-11:-5]  # fish_file[-20:-14]  #
+#                     if flow_cat == 'cat_60':
+            try:
+                print(fish_file)
+                d = calc_max_gradient_direct(fish_file,
+                                             flow_cat,
+                                             fish_nbr)
+                print(d.shape)
+#                 raise Exception
+
+                plot_difference_in_angle(
+                    d,
+                    fish_nbr,
+                    flow_cat,
+                    'Angle_between_swim_and_max_depth_%s_gradient_direction'
+                    % str(flow_cat[-2:]))
+
+                plot_difference_in_angle(
+                    d,
+                    fish_nbr,
+                    flow_cat,
+                    'Angle_between_swim_and_max_velM_%s_gradient_direction'
+                    % str(flow_cat[-2:]))
+
+            except Exception as msg:
+                print(msg, 'error in ',  fish_file)
+                continue
 
     STOP = timeit.default_timer()  # Ending time
     print(('\n\a\a\a Done with everything on %s. Total run time was'

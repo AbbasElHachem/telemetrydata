@@ -1448,24 +1448,24 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
                 y_nebors = y_grid_between_unique_series_near[nrsts_idxs]
 
                 #==============================================================
-                if (x0 in x_nebors) and (y0 in y_nebors):
-                    x_nebors = list(x_nebors.values)
-                    y_nebors = list(y_nebors.values)
-                    i = 0  # loop counter
-                    length = len(x_nebors)  # list length
-                    while (i < length):
-                        if (x_nebors[i] == x0) and (y_nebors[i] == y0):
-                            print('removing x0, y0 from points')
-                            x_nebors.remove(x_nebors[i])
-                            y_nebors.remove(y_nebors[i])
-                            # as an element is removed
-                            # so decrease the length by 1
-                            length = length - 1
-                            # run loop again to check element
-                            # at same index, when item removed
-                            # next item will shift to the left
-                            continue
-                        i = i + 1
+#                 if (x0 in x_nebors) and (y0 in y_nebors):
+#                     x_nebors = list(x_nebors.values)
+#                     y_nebors = list(y_nebors.values)
+#                     i = 0  # loop counter
+#                     length = len(x_nebors)  # list length
+#                     while (i < length):
+#                         if (x_nebors[i] == x0) and (y_nebors[i] == y0):
+#                             print('removing x0, y0 from points')
+#                             x_nebors.remove(x_nebors[i])
+#                             y_nebors.remove(y_nebors[i])
+#                             # as an element is removed
+#                             # so decrease the length by 1
+#                             length = length - 1
+#                             # run loop again to check element
+#                             # at same index, when item removed
+#                             # next item will shift to the left
+#                             continue
+#                         i = i + 1
 
                 x_nebors_arr_noX0 = np.array(x_nebors)
                 y_nebors_arr_noY0 = np.array(y_nebors)

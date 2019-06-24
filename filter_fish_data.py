@@ -1472,7 +1472,7 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
 
 #                 plt.ioff()
 #                 plt.scatter(x_nebors, y_nebors, c='g', alpha=0.75)
-        #         plt.scatter(x_fish, y_fish, c='orange', alpha=0.5)
+#                 plt.scatter(x_fish, y_fish, c='orange', alpha=0.5)
 #                 plt.scatter(x0, y0, c='r', alpha=0.5)
 
                 diff_in_grds_lst, diff_in_vel_lst = [], []
@@ -1580,10 +1580,10 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
                                  % flow_var] = np.nan
 
                 fish_flow_df.loc[ix,
-                                 'Direction_max_%s_gradient_compared_to_x_axis'
+                                 'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
                                  % depth_var] = np.nan
                 fish_flow_df.loc[ix,
-                                 'Direction_max_%s_gradient_compared_to_x_axis'
+                                 'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
                                  % flow_var] = np.nan
 
                 fish_flow_df.loc[ix,
@@ -1632,9 +1632,9 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
                 % flow_var,
                 'Y_coords_grid_with_max_%s_gradient_diff'
                 % flow_var,
-                'Direction_max_%s_gradient_compared_to_x_axis'
+                'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
                 % depth_var,
-                'Direction_max_%s_gradient_compared_to_x_axis'
+                'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
                 % flow_var,
                 'Angle_between_swim_and_max_%s_gradient_direction'
                 % depth_var,
@@ -1709,6 +1709,7 @@ if __name__ == '__main__':
             except Exception as msg:
                 print(msg, 'error in ',  fish_file)
                 continue
+        break
 
     STOP = timeit.default_timer()  # Ending time
     print(('\n\a\a\a Done with everything on %s. Total run time was'

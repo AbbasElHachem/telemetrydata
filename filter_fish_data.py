@@ -1371,9 +1371,10 @@ def plot_difference_in_angle(in_df_fish_flow, fish_type_nbr, flow_cat,
 # =============================================================================
 
 
-def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
-                             timedelta=10,
-                             distance_thr=3):
+def calc_max_gradient_direct(fish_flow_file,
+                             flow_cat,
+                             fish_nbr,
+                             distance_thr=2):
     '''
     a function used to calculate between every position
     and closest 4 positions the difference in the
@@ -1385,6 +1386,8 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
     '''
     fish_flow_df = pd.read_csv(fish_flow_file, sep=',', index_col=0,
                                parse_dates=True, engine='c')
+
+#     fish_flow_df = fish_flow_df.head(10)
 
     flow_val = flow_cat[-2:]
     depth_var = 'depth_%s' % flow_val
@@ -1523,21 +1526,21 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
                 direction_max_vel_grd = np.math.degrees(
                     np.math.atan2((y_v - y0), (x_v - x0)))
 
-                fish_flow_df.loc[ix,
-                                 'X_coords_grid_with_max_%s_gradient_diff'
-                                 % depth_var] = x_d
-
-                fish_flow_df.loc[ix,
-                                 'Y_coords_grid_with_max_%s_gradient_diff'
-                                 % depth_var] = y_d
-
-                fish_flow_df.loc[ix,
-                                 'X_coords_grid_with_max_%s_gradient_diff'
-                                 % flow_var] = x_v
-
-                fish_flow_df.loc[ix,
-                                 'Y_coords_grid_with_max_%s_gradient_diff'
-                                 % flow_var] = y_v
+#                 fish_flow_df.loc[ix,
+#                                  'X_coords_grid_with_max_%s_gradient_diff'
+#                                  % depth_var] = x_d
+#
+#                 fish_flow_df.loc[ix,
+#                                  'Y_coords_grid_with_max_%s_gradient_diff'
+#                                  % depth_var] = y_d
+#
+#                 fish_flow_df.loc[ix,
+#                                  'X_coords_grid_with_max_%s_gradient_diff'
+#                                  % flow_var] = x_v
+#
+#                 fish_flow_df.loc[ix,
+#                                  'Y_coords_grid_with_max_%s_gradient_diff'
+#                                  % flow_var] = y_v
 
                 fish_flow_df.loc[ix,
                                  'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
@@ -1547,11 +1550,12 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
                                  % flow_var] = direction_max_vel_grd
 
                 diff_fish_max_depth_grd = np.mod(
-                    fish_flow_df.loc[ix, 'fish_angle'] -
+                    # 'fish_angle'
+                    fish_flow_df.loc[ix, 'Fish_swim_direction_compared_to_x_axis'] -
                     direction_max_depth_grd + 180, 360) - 180
 
                 diff_fish_max_vel_grd = np.mod(
-                    fish_flow_df.loc[ix, 'fish_angle'] -
+                    fish_flow_df.loc[ix, 'Fish_swim_direction_compared_to_x_axis'] -
                     direction_max_vel_grd + 180, 360) - 180
 
                 fish_flow_df.loc[ix,
@@ -1563,21 +1567,21 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
             else:
                 print('Assigning Nans because no nearest neighbour found')
 
-                fish_flow_df.loc[ix,
-                                 'X_coords_grid_with_max_%s_gradient_diff'
-                                 % depth_var] = np.nan
-
-                fish_flow_df.loc[ix,
-                                 'Y_coords_grid_with_max_%s_gradient_diff'
-                                 % depth_var] = np.nan
-
-                fish_flow_df.loc[ix,
-                                 'X_coords_grid_with_max_%s_gradient_diff'
-                                 % flow_var] = np.nan
-
-                fish_flow_df.loc[ix,
-                                 'Y_coords_grid_with_max_%s_gradient_diff'
-                                 % flow_var] = np.nan
+#                 fish_flow_df.loc[ix,
+#                                  'X_coords_grid_with_max_%s_gradient_diff'
+#                                  % depth_var] = np.nan
+#
+#                 fish_flow_df.loc[ix,
+#                                  'Y_coords_grid_with_max_%s_gradient_diff'
+#                                  % depth_var] = np.nan
+#
+#                 fish_flow_df.loc[ix,
+#                                  'X_coords_grid_with_max_%s_gradient_diff'
+#                                  % flow_var] = np.nan
+#
+#                 fish_flow_df.loc[ix,
+#                                  'Y_coords_grid_with_max_%s_gradient_diff'
+#                                  % flow_var] = np.nan
 
                 fish_flow_df.loc[ix,
                                  'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
@@ -1595,22 +1599,22 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
     except Exception as msg:
         print(msg)
     print('saving df')
-    fish_flow_df.rename(
-        columns={'Velocity': 'Fish_swim_velocity_m_per_s',
-                 'x_fish': 'Fish_x_coord',
-                 'y_fish': 'Fish_y_coord',
-                 'index_of_grid_node': 'Index_of_grid_node',
-                 'fish_angle': 'Fish_swim_direction_compared_to_x_axis',
-                 'flow_angle': 'Flow_direction_compared_to_x_axis',
-                 'angle_diff': 'Angle_between_swim_and_flow_direction'},
-        inplace=True)
-    deltax = fish_flow_df.Fish_x_coord.diff()
-    deltay = fish_flow_df.Fish_x_coord.diff()
-    fish_flow_df['Time'] = fish_flow_df.index
-    fish_flow_df['Time_difference_in_s'] = np.round(
-        fish_flow_df.Time.diff() / pd.Timedelta('1s'), 1)
-    fish_flow_df['Traveled_distance_in_m'] = calculate_distance_2_points(deltax,
-                                                                         deltay)
+#     fish_flow_df.rename(
+#         columns={'Velocity': 'Fish_swim_velocity_m_per_s',
+#                  'x_fish': 'Fish_x_coord',
+#                  'y_fish': 'Fish_y_coord',
+#                  'index_of_grid_node': 'Index_of_grid_node',
+#                  'fish_angle': 'Fish_swim_direction_compared_to_x_axis',
+#                  'flow_angle': 'Flow_direction_compared_to_x_axis',
+#                  'angle_diff': 'Angle_between_swim_and_flow_direction'},
+#         inplace=True)
+#     deltax = fish_flow_df.Fish_x_coord.diff()
+#     deltay = fish_flow_df.Fish_x_coord.diff()
+#     fish_flow_df['Time'] = fish_flow_df.index
+#     fish_flow_df['Time_difference_in_s'] = np.round(
+#         fish_flow_df.Time.diff() / pd.Timedelta('1s'), 1)
+#     fish_flow_df['Traveled_distance_in_m'] = calculate_distance_2_points(deltax,
+#                                                                          deltay)
 #         fish_flow_df_final.drop('Time', axis=1, inplace=True)
 
     cols_new = ['Longitude', 'Latitude', 'Fish_x_coord',
@@ -1624,14 +1628,14 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
                 'Fish_swim_direction_compared_to_x_axis',
                 'Flow_direction_compared_to_x_axis',
                 'Angle_between_swim_and_flow_direction',
-                'X_coords_grid_with_max_%s_gradient_diff'
-                % depth_var,
-                'Y_coords_grid_with_max_%s_gradient_diff'
-                % depth_var,
-                'X_coords_grid_with_max_%s_gradient_diff'
-                % flow_var,
-                'Y_coords_grid_with_max_%s_gradient_diff'
-                % flow_var,
+                #                 'X_coords_grid_with_max_%s_gradient_diff'
+                #                 % depth_var,
+                #                 'Y_coords_grid_with_max_%s_gradient_diff'
+                #                 % depth_var,
+                #                 'X_coords_grid_with_max_%s_gradient_diff'
+                #                 % flow_var,
+                #                 'Y_coords_grid_with_max_%s_gradient_diff'
+                #                 % flow_var,
                 'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
                 % depth_var,
                 'Direction_max_%s_gradient_compared_to_grid_point_and_x_axis'
@@ -1639,14 +1643,16 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr,
                 'Angle_between_swim_and_max_%s_gradient_direction'
                 % depth_var,
                 'Angle_between_swim_and_max_%s_gradient_direction'
-                % flow_var]
+                % flow_var,
+                'group',
+                'Depth_Grad']
     # change column names and save df
     fish_flow_df_final = fish_flow_df[cols_new]
 
     fish_flow_df_final.to_csv(
         os.path.join(out_plots_dir,
                      r'fish_%s_with_flow_data_%s_angles'
-                     r'_and_max_gradients_new.csv'
+                     r'_and_max_gradients_with_behavior_depthGrad_new.csv'
                      % (fish_nbr, flow_cat)))  # , compression='gzip')
     print('Done saving df')
     return fish_flow_df_final
@@ -1664,9 +1670,12 @@ if __name__ == '__main__':
 # fish_file[-25:-20]
 
 #    in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider\out_plots_abbas\Filtered_data', '.csv')
+#     in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
+#                                   r'\out_plots_abbas\df_fish_flow_combined_with_angles',
+#                                   '.csv')   #
     in_fish_files_dict = getFiles(r'C:\Users\hachem\Desktop\Work_with_Matthias_Schneider'
-                                  r'\out_plots_abbas\df_fish_flow_combined_with_angles',
-                                  '.csv')   #
+                                  r'\MigratingDataframes',
+                                  '.csv')
     fish_nbrs = []
     orig_data = []
     rem_data = []
@@ -1677,12 +1686,13 @@ if __name__ == '__main__':
         for fish_file in in_fish_files_dict[fish_type]:
 
                 # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
-            fish_nbr = fish_type + '_' + \
-                fish_file[-47:-42]  # fish_file[-41:-36]
-
+            #             fish_nbr = fish_type + '_' + \
+            #                 fish_file[-47:-42]  # fish_file[-41:-36]
+            fish_nbr = fish_type + '_' + fish_file[-80:-75]
 #                 if fish_nbr == '2_barbel_46861':
 #                 if fish_nbr == '1_grayling_46865':
-            flow_cat = fish_file[-11:-5]  # fish_file[-20:-14]  #
+#             flow_cat = fish_file[-11:-5]  # fish_file[-20:-14]  #
+            flow_cat = fish_file[-59:-53]
 #                     if flow_cat == 'cat_60':
             try:
                 print(fish_file)
@@ -1692,24 +1702,24 @@ if __name__ == '__main__':
                 print(d.shape)
 #                 raise Exception
 
-                plot_difference_in_angle(
-                    d,
-                    fish_nbr,
-                    flow_cat,
-                    'Angle_between_swim_and_max_depth_%s_gradient_direction'
-                    % str(flow_cat[-2:]))
-
-                plot_difference_in_angle(
-                    d,
-                    fish_nbr,
-                    flow_cat,
-                    'Angle_between_swim_and_max_velM_%s_gradient_direction'
-                    % str(flow_cat[-2:]))
+#                 plot_difference_in_angle(
+#                     d,
+#                     fish_nbr,
+#                     flow_cat,
+#                     'Angle_between_swim_and_max_depth_%s_gradient_direction'
+#                     % str(flow_cat[-2:]))
+#
+#                 plot_difference_in_angle(
+#                     d,
+#                     fish_nbr,
+#                     flow_cat,
+#                     'Angle_between_swim_and_max_velM_%s_gradient_direction'
+#                     % str(flow_cat[-2:]))
 
             except Exception as msg:
                 print(msg, 'error in ',  fish_file)
                 continue
-        break
+#         break
 
     STOP = timeit.default_timer()  # Ending time
     print(('\n\a\a\a Done with everything on %s. Total run time was'

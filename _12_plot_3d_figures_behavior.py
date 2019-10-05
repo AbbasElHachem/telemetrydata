@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shapefile
+import datetime
 
 from matplotlib.ticker import FormatStrFormatter
 from mpl_toolkits.mplot3d import Axes3D
@@ -31,6 +32,9 @@ from matplotlib.ticker import LinearLocator
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import rc
 from matplotlib import rcParams
+
+from astral import Astral, Location
+
 
 from _00_define_main_directories import (dir_kmz_for_fish_names,
                                          out_data_dir,
@@ -49,7 +53,81 @@ rc('font', family='serif')
 rc('axes', labelsize=20)
 rcParams['axes.labelpad'] = 35
 
+astral = Astral()
+
+#==============================================================================
+# Def project location
+#==============================================================================
+project_location = Location()
+
+city_name = 'Altusried'
+longitude = 47.80997
+latitude = 10.22982
+elevation = 654
+
+project_location.name = city_name
+project_location.region = 'Germany'
+project_location.latitude = latitude
+project_location.longitude = longitude
+project_location.timezone = 'Europe/Berlin'
+project_location.elevation = elevation
+project_location.sun()
+#==============================================================================
+#
+#==============================================================================
 # %%
+
+
+def find_day_dawn_dusk_info(fish_file):
+    df_fish = pd.read_csv(fish_file,
+                          sep=',',
+                          index_col=0,
+                          parse_dates=True,
+                          engine='c',
+                          infer_datetime_format=True)
+
+    for fish_obsv_time in df_fish.index:
+        sun = project_location.sun(date=fish_obsv_time,
+                                   local=True)
+
+        dawn = sun['sunrise'] - pd.Timedelta(hours=1)
+
+        day_start, day_end = sun['sunrise'], sun['sunset']
+        dusk = sun['sunset'] + pd.Timedelta(hours=1)
+        night_start, night_end = dusk, dawn
+
+        # print('Dawn:    %s' % str(dawn))
+        # print('Day Start: %s' % str(day_start))
+        # print('Day End: %s' % str(day_end))
+        # print('Dusk: %s' % str(dusk))
+        # print('Night Start: %s' % str(night_start))
+        # print('Night End: %s' % str(night_end))
+
+        # define colors for periods 1: dawn, 2: day, 3: dusk, 4:night
+        if dawn.replace(tzinfo=None) <= fish_obsv_time < day_start.replace(tzinfo=None):
+            df_fish.loc[fish_obsv_time, 'color_3d_plot'] = 'g'  # 'Dawn'
+
+        elif day_start.replace(tzinfo=None) <= fish_obsv_time < day_end.replace(tzinfo=None):
+            df_fish.loc[fish_obsv_time, 'color_3d_plot'] = 'gold'  # 'Day'
+
+        elif day_end.replace(tzinfo=None) <= fish_obsv_time < dusk.replace(tzinfo=None):
+            df_fish.loc[fish_obsv_time, 'color_3d_plot'] = 'darkred'  # 'Dusk'
+
+        elif dusk.replace(tzinfo=None) <= fish_obsv_time < dawn.replace(tzinfo=None):
+            df_fish.loc[fish_obsv_time,
+                        'color_3d_plot'] = 'darkblue'  # 'Night'
+        else:
+            print('Time of observation not found')
+            raise Exception
+
+        print('Observation Time', fish_obsv_time, ';Time period:',
+              df_fish.loc[fish_obsv_time, 'color_3d_plot'])
+
+        colors_for_plot = df_fish['color_3d_plot'].values.ravel()
+    return colors_for_plot
+#==============================================================================
+#
+#==============================================================================
 
 
 def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
@@ -69,6 +147,8 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     ax.yaxis.set_major_locator(LinearLocator(10))
     ax.yaxis.set_major_formatter(FormatStrFormatter('%.04f'))
 
+    # get colors for plot
+    colors_3d_plot = find_day_dawn_dusk_info(fish_file)
     in_df = pd.read_csv(fish_file, index_col=0, parse_dates=True)
     x_vals = in_df.Longitude.values
     y_vals = in_df.Latitude.values
@@ -77,23 +157,25 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     dates_formatted = [pd.to_datetime(d) for d in z_vals]
     z_vals_ix = np.arange(0, len(z_vals), 1)
 
-    bounds = {0: [0, 4], 1: [4, 10], 2: [10, 16], 3: [16, 22], 4: [22, 0]}
-    clrs = ['blue', 'g', 'gold', 'red', 'blue']
+#     bounds = {0: [0, 4], 1: [4, 10], 2: [10, 16], 3: [16, 22], 4: [22, 0]}
+    clrs = ['darkblue', 'g', 'gold', 'darkred']
+    # night, dawn, day, dusk
     cmap = mcolors.ListedColormap(clrs)
-    for ix, val in zip(in_df.index, in_df.index.hour):
-        for k, v in bounds.items():
-            if v[0] <= val <= v[1]:
-                in_df.loc[ix, 'colors'] = clrs[k]
-        if val < bounds[0][0]:
-            in_df.loc[ix, 'colors'] = clrs[0]
-        if val > bounds[4][0]:
-            in_df.loc[ix, 'colors'] = clrs[4]
+#     for ix, val in zip(in_df.index, in_df.index.hour):
+#        for k, v in bounds.items():
+#             if v[0] <= val <= v[1]:
+#                 in_df.loc[ix, 'colors'] = clrs[k]
+#         if val < bounds[0][0]:
+#             in_df.loc[ix, 'colors'] = clrs[0]
+#         if val > bounds[4][0]:
+#             in_df.loc[ix, 'colors'] = clrs[4]
 
     ticks = [0, 4, 10, 16, 22, 24]
-
+    # TODO: Test
     ax.scatter3D(x_vals, y_vals, zs=z_vals_ix, zdir='z',
-                 c=in_df.colors, alpha=0.65,
+                 c=colors_3d_plot, alpha=0.65,
                  marker=',', s=8)
+
     ax.plot3D(x_vals, y_vals, zs=z_vals_ix, zdir='z',
               c='k', alpha=0.25, linewidth=0.75)
 

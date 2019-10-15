@@ -14,7 +14,6 @@ __copyright__ = 'Institut fuer Wasser- und Umweltsystemmodellierung - IWS'
 __email__ = "abbas.el-hachem@iws.uni-stuttgart.de"
 
 # =============================================================================
-from __future__ import division
 
 from _00_define_main_directories import (dir_kmz_for_fish_names,
                                          main_data_dir,

@@ -32,7 +32,7 @@ from matplotlib.ticker import LinearLocator
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import rc
 from matplotlib import rcParams
-
+from datetime import timedelta
 from astral import Astral, Location
 
 
@@ -78,53 +78,97 @@ project_location.sun()
 # %%
 
 
-def find_day_dawn_dusk_info(fish_file):
-    df_fish = pd.read_csv(fish_file,
-                          sep=',',
-                          index_col=0,
-                          parse_dates=True,
-                          engine='c',
-                          infer_datetime_format=True)
+# def find_day_dawn_dusk_info(fish_file):
+#     df_fish = pd.read_csv(fish_file,
+#                           sep=',',
+#                           index_col=0,
+#                           parse_dates=True,
+#                           engine='c',
+#                           infer_datetime_format=True)
+#
+#     for fish_obsv_time in df_fish.index:
+#         sun = project_location.sun(date=fish_obsv_time,
+#                                    local=True)
+#
+#         dawn = sun['sunrise'] - pd.Timedelta(hours=1)
+#
+#         day_start, day_end = sun['sunrise'], sun['sunset']
+#         dusk = sun['sunset'] + pd.Timedelta(hours=1)
+#         night_start, night_end = dusk, dawn
+#
+#         # print('Dawn:    %s' % str(dawn))
+#         # print('Day Start: %s' % str(day_start))
+#         # print('Day End: %s' % str(day_end))
+#         # print('Dusk: %s' % str(dusk))
+#         # print('Night Start: %s' % str(night_start))
+#         # print('Night End: %s' % str(night_end))
+#
+#         # define colors for periods 1: dawn, 2: day, 3: dusk, 4:night
+#         try:
+#             if dawn.replace(tzinfo=None) <= fish_obsv_time < day_start.replace(tzinfo=None):
+#                 df_fish.loc[fish_obsv_time, 'color_3d_plot'] = 'g'  # 'Dawn'
+#
+#             elif day_start.replace(tzinfo=None) <= fish_obsv_time < day_end.replace(tzinfo=None):
+#                 df_fish.loc[fish_obsv_time, 'color_3d_plot'] = 'gold'  # 'Day'
+#
+#             elif day_end.replace(tzinfo=None) <= fish_obsv_time < dusk.replace(tzinfo=None):
+#                 df_fish.loc[fish_obsv_time,
+#                             'color_3d_plot'] = 'darkred'  # 'Dusk'
+#
+#         # elif dusk.replace(tzinfo=None) <= fish_obsv_time < (dawn.replace(tzinfo=None) +
+#         #                                                    pd.Timedelta(days=1)):  # add one day because next day in the morning
+# #             df_fish.loc[fish_obsv_time,
+# #                         'color_3d_plot'] = 'darkblue'  # 'Night'
+#             else:
+#                 df_fish.loc[fish_obsv_time,
+#                             'color_3d_plot'] = 'darkblue'
+#             #print('Time of observation not found:', fish_obsv_time)
+# #             raise Exception
+#         except Exception as msg:
+#             print(fish_obsv_time, 'Error', msg)
+#         print('Observation Time', fish_obsv_time, ';Time period:',
+#               df_fish.loc[fish_obsv_time, 'color_3d_plot'])
+#
+#         colors_for_plot = df_fish['color_3d_plot'].values.ravel()
+#     return colors_for_plot
+#==============================================================================
+#
+#==============================================================================
 
-    for fish_obsv_time in df_fish.index:
-        sun = project_location.sun(date=fish_obsv_time,
-                                   local=True)
 
-        dawn = sun['sunrise'] - pd.Timedelta(hours=1)
+def find_day_dawn_dusk_info_per_idx(time_idx):
 
-        day_start, day_end = sun['sunrise'], sun['sunset']
-        dusk = sun['sunset'] + pd.Timedelta(hours=1)
-        night_start, night_end = dusk, dawn
+    sun = project_location.sun(date=time_idx,
+                               local=True)
 
-        # print('Dawn:    %s' % str(dawn))
-        # print('Day Start: %s' % str(day_start))
-        # print('Day End: %s' % str(day_end))
-        # print('Dusk: %s' % str(dusk))
-        # print('Night Start: %s' % str(night_start))
-        # print('Night End: %s' % str(night_end))
+    dawn = sun['sunrise'] - pd.Timedelta(hours=1)
 
-        # define colors for periods 1: dawn, 2: day, 3: dusk, 4:night
-        if dawn.replace(tzinfo=None) <= fish_obsv_time < day_start.replace(tzinfo=None):
-            df_fish.loc[fish_obsv_time, 'color_3d_plot'] = 'g'  # 'Dawn'
+    day_start, day_end = sun['sunrise'], sun['sunset']
+    dusk = sun['sunset'] + pd.Timedelta(hours=1)
+    #night_start, night_end = dusk, dawn
 
-        elif day_start.replace(tzinfo=None) <= fish_obsv_time < day_end.replace(tzinfo=None):
-            df_fish.loc[fish_obsv_time, 'color_3d_plot'] = 'gold'  # 'Day'
+    if dawn.replace(tzinfo=None) <= time_idx < day_start.replace(tzinfo=None):
+        return 'g'  # 'Dawn'
 
-        elif day_end.replace(tzinfo=None) <= fish_obsv_time < dusk.replace(tzinfo=None):
-            df_fish.loc[fish_obsv_time, 'color_3d_plot'] = 'darkred'  # 'Dusk'
+    elif day_start.replace(tzinfo=None) <= time_idx < day_end.replace(tzinfo=None):
+        return 'gold'  # 'Day'
 
-        elif dusk.replace(tzinfo=None) <= fish_obsv_time < dawn.replace(tzinfo=None):
-            df_fish.loc[fish_obsv_time,
-                        'color_3d_plot'] = 'darkblue'  # 'Night'
-        else:
-            print('Time of observation not found')
-            raise Exception
+    elif day_end.replace(tzinfo=None) <= time_idx < dusk.replace(tzinfo=None):
+        return 'darkred'  # 'Dusk'
 
-        print('Observation Time', fish_obsv_time, ';Time period:',
-              df_fish.loc[fish_obsv_time, 'color_3d_plot'])
+    else:
+        return 'darkblue'  # 'Night'
+    #print('Time of observation not found:', fish_obsv_time)
 
-        colors_for_plot = df_fish['color_3d_plot'].values.ravel()
-    return colors_for_plot
+#==============================================================================
+#
+#==============================================================================
+
+
+def hour_rounder(t):
+    # Rounds to nearest hour by adding a timedelta hour if minute >= 30
+    return (t.replace(second=0, microsecond=0, minute=0, hour=t.hour)
+            + timedelta(hours=t.minute // 30))
 #==============================================================================
 #
 #==============================================================================
@@ -148,17 +192,23 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     ax.yaxis.set_major_formatter(FormatStrFormatter('%.04f'))
 
     # get colors for plot
-    colors_3d_plot = find_day_dawn_dusk_info(fish_file)
+    # colors_3d_plot = find_day_dawn_dusk_info(fish_file)
+#      = in_df.apply(lambda x: fxy(x['A'], x['B']), axis=1)
+    print('plotting')
     in_df = pd.read_csv(fish_file, index_col=0, parse_dates=True)
     x_vals = in_df.Longitude.values
     y_vals = in_df.Latitude.values
+    in_df['Time'] = in_df.index
+    in_df['colors_3d_plot'] = in_df.Time.apply(
+        lambda x: find_day_dawn_dusk_info_per_idx(x))
 
+    colors_3d_plot = in_df['colors_3d_plot'].values
     z_vals = in_df.index.to_pydatetime()
     dates_formatted = [pd.to_datetime(d) for d in z_vals]
     z_vals_ix = np.arange(0, len(z_vals), 1)
 
 #     bounds = {0: [0, 4], 1: [4, 10], 2: [10, 16], 3: [16, 22], 4: [22, 0]}
-    clrs = ['darkblue', 'g', 'gold', 'darkred']
+    clrs = ['darkblue', 'g', 'gold', 'darkred', 'darkblue']
     # night, dawn, day, dusk
     cmap = mcolors.ListedColormap(clrs)
 #     for ix, val in zip(in_df.index, in_df.index.hour):
@@ -170,8 +220,194 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
 #         if val > bounds[4][0]:
 #             in_df.loc[ix, 'colors'] = clrs[4]
 
-    ticks = [0, 4, 10, 16, 22, 24]
-    # TODO: Test
+    if 'g' in in_df['colors_3d_plot'].values:
+        # find minimal dusk / dawn start and end
+        min_dawn_start = in_df[in_df['colors_3d_plot']
+                               == 'g'].index.min().round('60min')
+        max_dawn_end = in_df[in_df['colors_3d_plot']
+                             == 'g'].index.max().round('60min')
+
+    if 'gold' in in_df['colors_3d_plot'].values:
+        min_day_start = in_df[in_df['colors_3d_plot']
+                              == 'gold'].index.min().round('60min')
+        max_day_end = in_df[in_df['colors_3d_plot']
+                            == 'gold'].index.max().round('60min')
+
+    if 'darkred' in in_df['colors_3d_plot'].values:
+        min_dusk_start = in_df[in_df['colors_3d_plot']
+                               == 'darkred'].index.min().round('60min')
+        max_dusk_end = in_df[in_df['colors_3d_plot']
+                             == 'darkred'].index.max().round('60min')
+    if 'darkblue' in in_df['colors_3d_plot'].values:
+        min_night_start = in_df[in_df['colors_3d_plot']
+                                == 'darkblue'].index.min().round('60min')
+        max_night_end = in_df[in_df['colors_3d_plot']
+                              == 'darkblue'].index.max().round('60min')
+    #==========================================================================
+    # FIND WHICH PERIOD (15 possible combination)
+    #==========================================================================
+    # if only dawn available (1)
+    if ('g' in in_df['colors_3d_plot'].values) and (
+            'gold' not in in_df['colors_3d_plot'].values) and (
+                'darkred' not in in_df['colors_3d_plot'].values) and (
+                'darkblue' not in in_df['colors_3d_plot'].values):
+        ticks = [min(min_dawn_start.hour, max_dawn_end.hour),
+                 max(min_dawn_start.hour, max_dawn_end.hour)]
+
+        ticks_str = ['Dawn']
+
+    # all four periods are available (1 ,2, 3, 4)
+    if ('g' in in_df['colors_3d_plot'].values) and (
+            'darkred' in in_df['colors_3d_plot'].values) and (
+            'gold' in in_df['colors_3d_plot'].values) and (
+            'darkblue' in in_df['colors_3d_plot'].values):
+        ticks = [0, min_dawn_start.hour,
+                 max_dawn_end.hour,
+                 min_dusk_start.hour,
+                 max_dusk_end.hour, 24]
+
+        ticks_str = ['Night', 'Dawn', 'Day', 'Dusk', 'Night']
+
+    # if only dawn, day, dusk available (1, 2, 3)
+    if ('g' in in_df['colors_3d_plot'].values) and (
+            'gold' in in_df['colors_3d_plot'].values) and (
+                'darkred' in in_df['colors_3d_plot'].values) and (
+                'darkblue' not in in_df['colors_3d_plot'].values):
+        ticks = [min_dawn_start.hour, max_dawn_end.hour,
+                 min_day_start.hour, max_day_end.hour,
+                 min_dusk_start.hour, max_dusk_end.hour]
+
+        ticks_str = ['Dawn', 'Day', 'Dusk']
+
+    # if only dawn, day, available (1, 2)
+    if ('g' in in_df['colors_3d_plot'].values) and (
+            'gold' in in_df['colors_3d_plot'].values) and (
+                'darkred' not in in_df['colors_3d_plot'].values) and (
+                'darkblue' not in in_df['colors_3d_plot'].values):
+        ticks = [min_dawn_start.hour, max_dawn_end.hour,
+                 min_day_start.hour, max_day_end.hour]
+
+        ticks_str = ['Dawn', 'Day']
+
+    # if only dawn, dusk, available (1, 3)
+    if ('g' in in_df['colors_3d_plot'].values) and (
+            'gold' not in in_df['colors_3d_plot'].values) and (
+                'darkred' in in_df['colors_3d_plot'].values) and (
+                'darkblue' not in in_df['colors_3d_plot'].values):
+        ticks = [min_dawn_start.hour, max_dawn_end.hour,
+                 min_dusk_start.hour, max_dusk_end.hour]
+
+        ticks_str = ['Dawn', 'Dusk']
+
+    # in only Dawn, Dusk, night are available (1 , 3, 4)
+    if ('g' in in_df['colors_3d_plot'].values) and (
+            'gold' not in in_df['colors_3d_plot'].values) and (
+            'darkred' in in_df['colors_3d_plot'].values) and (
+            'darkblue' in in_df['colors_3d_plot'].values):
+        ticks = [0, min_dawn_start.hour,  max_dawn_end.hour,
+                 min_dusk_start.hour, max_dusk_end.hour,
+                 min_night_start, 24]
+        ticks_str = ['Night', 'Dawn', 'Dusk', 'Night']
+
+    # in only Dawn, Day, night are available (1 , 2, 4)
+    if ('g' in in_df['colors_3d_plot'].values) and (
+            'gold' in in_df['colors_3d_plot'].values) and (
+                'darkred' not in in_df['colors_3d_plot'].values) and (
+            'darkblue' in in_df['colors_3d_plot'].values):
+        ticks = [0, min_dawn_start.hour,  max_dawn_end.hour,
+                 min_day_start.hour, max_day_end.hour, 24]
+        ticks_str = ['Night', 'Dawn', 'Day', 'Night']
+
+    # in only Dawn,  night are available (1 , 4)
+    if ('g' in in_df['colors_3d_plot'].values) and (
+            'gold' not in in_df['colors_3d_plot'].values) and (
+                'darkred' not in in_df['colors_3d_plot'].values) and (
+            'darkblue' in in_df['colors_3d_plot'].values):
+        ticks = [0, min_dawn_start.hour,  max_dawn_end.hour, 24]
+        ticks_str = ['Night', 'Dawn', 'Night']
+
+    # if only day available (2)
+    if ('g' not in in_df['colors_3d_plot'].values) and (
+            'gold' in in_df['colors_3d_plot'].values) and (
+                'darkred' not in in_df['colors_3d_plot'].values) and (
+                'darkblue' not in in_df['colors_3d_plot'].values):
+        ticks = [min(min_day_start.hour, max_day_end.hour),
+                 max(min_day_start.hour, max_day_end.hour)]
+
+        ticks_str = ['Day']
+
+    # if only day and dusk available (2, 3)
+    if ('g' not in in_df['colors_3d_plot'].values) and (
+            'gold' in in_df['colors_3d_plot'].values) and (
+                'darkred' in in_df['colors_3d_plot'].values) and (
+                'darkblue' not in in_df['colors_3d_plot'].values):
+
+        ticks = [min(min_day_start.hour, max_day_end.hour),
+                 max(min_day_start.hour, max_day_end.hour),
+                 min(min_dusk_start.hour, max_dusk_end.hour),
+                 max(min_dusk_start.hour, max_dusk_end.hour)]
+
+        ticks_str = ['Day', 'Dusk']
+
+    # in only Day, dusk, night are available (2,3, 4)
+    if ('g' not in in_df['colors_3d_plot'].values) and (
+            'gold' in in_df['colors_3d_plot'].values) and (
+                'darkred' in in_df['colors_3d_plot'].values) and (
+            'darkblue' in in_df['colors_3d_plot'].values):
+        ticks = [0, min_day_start.hour, max_day_end.hour,
+                 min_dusk_start.hour, max_dusk_end.hour,
+                 min_night_start, 24]
+        ticks_str = ['Night', 'Day', 'Dusk', 'Night']
+
+    # in only Day, night are available (2, 4)
+    if ('g' not in in_df['colors_3d_plot'].values) and (
+            'gold' in in_df['colors_3d_plot'].values) and (
+                'darkred' not in in_df['colors_3d_plot'].values) and (
+            'darkblue' in in_df['colors_3d_plot'].values):
+        ticks = [0, min_day_start.hour, max_day_end.hour,
+                 24]
+        ticks_str = ['Night', 'Day', 'Night']
+    # if only dusk available (3)
+    if ('g' not in in_df['colors_3d_plot'].values) and (
+            'gold' not in in_df['colors_3d_plot'].values) and (
+                'darkred' in in_df['colors_3d_plot'].values) and (
+                'darkblue' not in in_df['colors_3d_plot'].values):
+        ticks = [min(min_dusk_start.hour, max_dusk_end.hour),
+                 max(min_dusk_start.hour, max_dusk_end.hour)]
+
+        ticks_str = ['Dusk']
+
+    # if only dusk, night available (3, 4)
+    if ('g' not in in_df['colors_3d_plot'].values) and (
+            'gold' not in in_df['colors_3d_plot'].values) and (
+                'darkred' in in_df['colors_3d_plot'].values) and (
+                'darkblue' in in_df['colors_3d_plot'].values):
+        ticks = [0, min(min_dusk_start.hour, max_dusk_end.hour),
+                 max(min_dusk_start.hour, max_dusk_end.hour),
+                 24]
+
+        ticks_str = ['Night', 'Dusk', 'Night']
+
+    # if only night available ( 4)
+    if ('g' not in in_df['colors_3d_plot'].values) and (
+            'gold' not in in_df['colors_3d_plot'].values) and (
+                'darkred' not in in_df['colors_3d_plot'].values) and (
+                'darkblue' in in_df['colors_3d_plot'].values):
+        ticks = [0, 24]
+
+        ticks_str = ['Night', 'Night']
+
+    #==========================================================================
+    # position factor
+    #==========================================================================
+    if len(ticks_str) == 5:
+        div_pos_fact = 10.0
+    elif len(ticks_str) == 4:
+        div_pos_fact = 8
+    elif len(ticks_str) == 3:
+        div_pos_fact = 7
+    else:
+        div_pos_fact = 5
     ax.scatter3D(x_vals, y_vals, zs=z_vals_ix, zdir='z',
                  c=colors_3d_plot, alpha=0.65,
                  marker=',', s=8)
@@ -222,7 +458,14 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                                    orientation='horizontal')
     cb.set_label('Time_of_day_h', rotation=0)
     ax.set_aspect('auto')
-    cb.ax.set_xticklabels([str(i) for i in ticks])
+
+    cb.ax.get_xaxis().set_ticks([])
+    print(ticks_str)
+    for j, lab in enumerate(ticks_str):
+        cb.ax.text((2 * j + 1) / div_pos_fact, .5,
+                   lab, ha='center', va='center',
+                   color='w', fontweight='bold')
+    # cb.ax.set_xticklabels(ticks_str)
 
     ax.view_init(25, 275)
 
@@ -234,9 +477,14 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                              % (fish_nbr, flow_cat,
                                 'Time_of_day_h2')))
     plt.close()
+    print('done plotting')
     return
 
 # %%
+
+#==============================================================================
+#
+#==============================================================================
 
 
 def plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
@@ -481,13 +729,15 @@ if __name__ == '__main__':
         '.csv', dir_kmz_for_fish_names)  #
 
     for fish_type in in_fish_files_dict.keys():
-        for fish_file in in_fish_files_dict[fish_type]:
+        for fish_file in in_fish_files_dict[fish_type][2:]:
             print(fish_file)
 
             fish_nbr = fish_type + fish_file[-47:-42]
 #             # '_all_data_' + fish_file[-22:-17]  #    # fish_file[-32:-27]
             flow_cat = fish_file[-11:-5]
 #             # 'not_considered'  # fish_file[-11:-5]
+            print('fish number: ', fish_nbr, 'flow cat: ',  flow_cat)
+            #raise Exception
 #
             try:
                 plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
@@ -501,8 +751,8 @@ if __name__ == '__main__':
             except Exception as msg:
                 print(msg)
                 continue
-            break
-        break
+#             break
+#         break
     END = timeit.default_timer()
 
     print('Program ended at: ', time.asctime(),

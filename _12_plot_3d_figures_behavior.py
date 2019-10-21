@@ -208,9 +208,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     z_vals_ix = np.arange(0, len(z_vals), 1)
 
 #     bounds = {0: [0, 4], 1: [4, 10], 2: [10, 16], 3: [16, 22], 4: [22, 0]}
-    clrs = ['darkblue', 'g', 'gold', 'darkred', 'darkblue']
-    # night, dawn, day, dusk
-    cmap = mcolors.ListedColormap(clrs)
+
 #     for ix, val in zip(in_df.index, in_df.index.hour):
 #        for k, v in bounds.items():
 #             if v[0] <= val <= v[1]:
@@ -226,23 +224,30 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                                == 'g'].index.min().round('60min')
         max_dawn_end = in_df[in_df['colors_3d_plot']
                              == 'g'].index.max().round('60min')
-
+        if min_dawn_start.hour >= max_dawn_end.hour:
+            max_dawn_end += pd.Timedelta(hours=1)
     if 'gold' in in_df['colors_3d_plot'].values:
         min_day_start = in_df[in_df['colors_3d_plot']
                               == 'gold'].index.min().round('60min')
         max_day_end = in_df[in_df['colors_3d_plot']
                             == 'gold'].index.max().round('60min')
-
+        if min_day_start.hour >= max_day_end.hour:
+            max_day_end += pd.Timedelta(hours=1)
     if 'darkred' in in_df['colors_3d_plot'].values:
         min_dusk_start = in_df[in_df['colors_3d_plot']
                                == 'darkred'].index.min().round('60min')
         max_dusk_end = in_df[in_df['colors_3d_plot']
                              == 'darkred'].index.max().round('60min')
+        if min_dusk_start.hour >= max_dusk_end.hour:
+            max_dusk_end += pd.Timedelta(hours=1)
     if 'darkblue' in in_df['colors_3d_plot'].values:
         min_night_start = in_df[in_df['colors_3d_plot']
                                 == 'darkblue'].index.min().round('60min')
         max_night_end = in_df[in_df['colors_3d_plot']
                               == 'darkblue'].index.max().round('60min')
+
+        if min_night_start.hour >= max_night_end.hour:
+            max_night_end += pd.Timedelta(hours=1)
     #==========================================================================
     # FIND WHICH PERIOD (15 possible combination)
     #==========================================================================
@@ -255,19 +260,24 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                  max(min_dawn_start.hour, max_dawn_end.hour)]
 
         ticks_str = ['Dawn']
-
+        clrs = ['g']
     # all four periods are available (1 ,2, 3, 4)
     if ('g' in in_df['colors_3d_plot'].values) and (
             'darkred' in in_df['colors_3d_plot'].values) and (
             'gold' in in_df['colors_3d_plot'].values) and (
             'darkblue' in in_df['colors_3d_plot'].values):
+
+        if max_dusk_end.hour <= min_dusk_start.hour:
+            max_dusk_end += pd.Timedelta(hours=1)
+        if max_dawn_end.hour <= min_dawn_start.hour:
+            max_dawn_end += pd.Timedelta(hours=1)
         ticks = [0, min_dawn_start.hour,
                  max_dawn_end.hour,
                  min_dusk_start.hour,
                  max_dusk_end.hour, 24]
 
         ticks_str = ['Night', 'Dawn', 'Day', 'Dusk', 'Night']
-
+        clrs = ['darkblue', 'green', 'gold', 'darkred', 'darkblue']
     # if only dawn, day, dusk available (1, 2, 3)
     if ('g' in in_df['colors_3d_plot'].values) and (
             'gold' in in_df['colors_3d_plot'].values) and (
@@ -278,17 +288,19 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                  min_dusk_start.hour, max_dusk_end.hour]
 
         ticks_str = ['Dawn', 'Day', 'Dusk']
-
+        clrs = ['green', 'gold', 'darkred']
     # if only dawn, day, available (1, 2)
     if ('g' in in_df['colors_3d_plot'].values) and (
             'gold' in in_df['colors_3d_plot'].values) and (
                 'darkred' not in in_df['colors_3d_plot'].values) and (
                 'darkblue' not in in_df['colors_3d_plot'].values):
+        if max_day_end.hour == min_day_start.hour:
+            max_day_end += pd.Timedelta(hours=1)
         ticks = [min_dawn_start.hour, max_dawn_end.hour,
-                 min_day_start.hour, max_day_end.hour]
+                 max_day_end.hour]
 
         ticks_str = ['Dawn', 'Day']
-
+        clrs = ['green', 'gold']
     # if only dawn, dusk, available (1, 3)
     if ('g' in in_df['colors_3d_plot'].values) and (
             'gold' not in in_df['colors_3d_plot'].values) and (
@@ -298,7 +310,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                  min_dusk_start.hour, max_dusk_end.hour]
 
         ticks_str = ['Dawn', 'Dusk']
-
+        clrs = ['green',  'darkred']
     # in only Dawn, Dusk, night are available (1 , 3, 4)
     if ('g' in in_df['colors_3d_plot'].values) and (
             'gold' not in in_df['colors_3d_plot'].values) and (
@@ -308,16 +320,18 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                  min_dusk_start.hour, max_dusk_end.hour,
                  min_night_start, 24]
         ticks_str = ['Night', 'Dawn', 'Dusk', 'Night']
-
+        clrs = ['darkblue', 'green', 'darkred', 'darkblue']
     # in only Dawn, Day, night are available (1 , 2, 4)
     if ('g' in in_df['colors_3d_plot'].values) and (
             'gold' in in_df['colors_3d_plot'].values) and (
                 'darkred' not in in_df['colors_3d_plot'].values) and (
             'darkblue' in in_df['colors_3d_plot'].values):
+        #         if max_dawn_end.hour == min_day_start.hour:
+        #             min_day_start += pd.Timedelta(hours=1)
         ticks = [0, min_dawn_start.hour,  max_dawn_end.hour,
-                 min_day_start.hour, max_day_end.hour, 24]
+                 max_day_end.hour, 24]
         ticks_str = ['Night', 'Dawn', 'Day', 'Night']
-
+        clrs = ['darkblue', 'green', 'gold', 'darkblue']
     # in only Dawn,  night are available (1 , 4)
     if ('g' in in_df['colors_3d_plot'].values) and (
             'gold' not in in_df['colors_3d_plot'].values) and (
@@ -325,7 +339,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
             'darkblue' in in_df['colors_3d_plot'].values):
         ticks = [0, min_dawn_start.hour,  max_dawn_end.hour, 24]
         ticks_str = ['Night', 'Dawn', 'Night']
-
+        clrs = ['darkblue', 'green', 'darkblue']
     # if only day available (2)
     if ('g' not in in_df['colors_3d_plot'].values) and (
             'gold' in in_df['colors_3d_plot'].values) and (
@@ -335,7 +349,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                  max(min_day_start.hour, max_day_end.hour)]
 
         ticks_str = ['Day']
-
+        clrs = ['gold']
     # if only day and dusk available (2, 3)
     if ('g' not in in_df['colors_3d_plot'].values) and (
             'gold' in in_df['colors_3d_plot'].values) and (
@@ -343,12 +357,11 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                 'darkblue' not in in_df['colors_3d_plot'].values):
 
         ticks = [min(min_day_start.hour, max_day_end.hour),
-                 max(min_day_start.hour, max_day_end.hour),
                  min(min_dusk_start.hour, max_dusk_end.hour),
                  max(min_dusk_start.hour, max_dusk_end.hour)]
 
         ticks_str = ['Day', 'Dusk']
-
+        clrs = ['gold', 'darkred']
     # in only Day, dusk, night are available (2,3, 4)
     if ('g' not in in_df['colors_3d_plot'].values) and (
             'gold' in in_df['colors_3d_plot'].values) and (
@@ -358,15 +371,18 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                  min_dusk_start.hour, max_dusk_end.hour,
                  min_night_start, 24]
         ticks_str = ['Night', 'Day', 'Dusk', 'Night']
-
+        clrs = ['darkblue', 'gold', 'darkred', 'darkblue']
     # in only Day, night are available (2, 4)
     if ('g' not in in_df['colors_3d_plot'].values) and (
             'gold' in in_df['colors_3d_plot'].values) and (
                 'darkred' not in in_df['colors_3d_plot'].values) and (
             'darkblue' in in_df['colors_3d_plot'].values):
-        ticks = [0, min_day_start.hour, max_day_end.hour,
-                 24]
+        if min_day_start.hour < max_day_end.hour:
+            ticks = [0, min_day_start.hour, max_day_end.hour, 24]
+        else:
+            ticks = [0, max_day_end.hour, min_day_start.hour, 24]
         ticks_str = ['Night', 'Day', 'Night']
+        clrs = ['darkblue', 'gold', 'darkblue']
     # if only dusk available (3)
     if ('g' not in in_df['colors_3d_plot'].values) and (
             'gold' not in in_df['colors_3d_plot'].values) and (
@@ -376,6 +392,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                  max(min_dusk_start.hour, max_dusk_end.hour)]
 
         ticks_str = ['Dusk']
+        clrs = ['darkred']
 
     # if only dusk, night available (3, 4)
     if ('g' not in in_df['colors_3d_plot'].values) and (
@@ -387,7 +404,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                  24]
 
         ticks_str = ['Night', 'Dusk', 'Night']
-
+        clrs = ['darkblue', 'darkred', 'darkblue']
     # if only night available ( 4)
     if ('g' not in in_df['colors_3d_plot'].values) and (
             'gold' not in in_df['colors_3d_plot'].values) and (
@@ -396,7 +413,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
         ticks = [0, 24]
 
         ticks_str = ['Night', 'Night']
-
+        clrs = ['darkblue', 'darkblue']
     #==========================================================================
     # position factor
     #==========================================================================
@@ -405,9 +422,12 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     elif len(ticks_str) == 4:
         div_pos_fact = 8
     elif len(ticks_str) == 3:
-        div_pos_fact = 7
-    else:
+        div_pos_fact = 6
+    elif len(ticks_str) == 2:
         div_pos_fact = 5
+    else:
+        div_pos_fact = 2
+
     ax.scatter3D(x_vals, y_vals, zs=z_vals_ix, zdir='z',
                  c=colors_3d_plot, alpha=0.65,
                  marker=',', s=8)
@@ -451,6 +471,15 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                     'Time_of_day_h'))
 
     ax.set_xlim(min(lon), max(lon)), ax.set_ylim(min(lat), max(lat))
+
+    #_, idx = np.unique(in_df['colors_3d_plot'].values, return_index=True)
+
+    #clrs = in_df['colors_3d_plot'].values[np.sort(idx)]
+
+    # night, dawn, day, dusk
+    print(clrs)
+    cmap = mcolors.ListedColormap(clrs)
+
     norm = mcolors.BoundaryNorm(ticks, cmap.N)
     ax_legend = fig.add_axes([0.1725, 0.07525, 0.68, 0.0225], zorder=3)
     cb = mpl.colorbar.ColorbarBase(ax_legend, ticks=ticks,
@@ -475,7 +504,7 @@ def plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
     plt.savefig(os.path.join(out_save_dir,
                              '3d_%s_%s_%s.png'
                              % (fish_nbr, flow_cat,
-                                'Time_of_day_h2')))
+                                'Period_of_day_')))
     plt.close()
     print('done plotting')
     return
@@ -738,20 +767,22 @@ if __name__ == '__main__':
 #             # 'not_considered'  # fish_file[-11:-5]
             print('fish number: ', fish_nbr, 'flow cat: ',  flow_cat)
             #raise Exception
-#
+#             if fish_nbr == '1_grayling46867' and flow_cat == 'cat_80':
+#             if fish_nbr == '2_barbel46853':# and flow_cat == 'cat_80':
+            # 2_barbel46854 cat_60
             try:
                 plot_3d_plot_tiomeofday_as_colr(fish_file, fish_nbr, flow_cat,
                                                 fish_shp_path, river_shp_path,
                                                 out_data_dir)
-            #
-#                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
-#                                            fish_shp_path, river_shp_path,
-#                                            out_data_dir)
-#
+
+    #                 plot_3d_plot_flow_as_color(fish_file, fish_nbr, flow_cat,
+    #                                            fish_shp_path, river_shp_path,
+    #                                            out_data_dir)
+    #
             except Exception as msg:
                 print(msg)
                 continue
-#             break
+        #             break
 #         break
     END = timeit.default_timer()
 

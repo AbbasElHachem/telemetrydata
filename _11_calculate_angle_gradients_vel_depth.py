@@ -137,8 +137,8 @@ def calc_max_gradient_direct(fish_flow_file, flow_cat, fish_nbr):
         (_, vel_point_id) = (np.max(diff_in_vel_lst),
                              indices[np.argmax(diff_in_vel_lst)])
 
-        (x_d, y_d) = (fish_flow_df.iloc[depth_point_id, :].x_fish,
-                      fish_flow_df.iloc[depth_point_id, :].y_fish)
+        (x_d, y_d) = (fish_flow_df.iloc[depth_point_id, :].x_fish, # Fish_x_coord
+                      fish_flow_df.iloc[depth_point_id, :].y_fish) # Fish_y_coord
         (x_v, y_v) = (fish_flow_df.iloc[vel_point_id, :].x_fish,
                       fish_flow_df.iloc[vel_point_id, :].y_fish)
 
